@@ -1,0 +1,87 @@
+fcntl.h
+int open(const char *pathname, int flags, mode_t mode)
+	returns a nonnegative int fd, the lowest fd not currently open for the process
+	if pathname does not exist, using O_CREAT flag can create it
+	mode is not required and will set to a default.
+	remains open across an execve()
+
+
+close
+
+unistd.h
+ssize_t read(int fd, void *buf, size_t count)
+	read up to count bytes from fd into buffer starting at buf
+	on success the number of bytes read is retruned (0 indicates EOF)
+	the file position is advanced by this number.
+	the number of bytes read can be less than the buffer.
+	-1 means error
+
+unistd.h
+ssize_t write(int fd, const void *bug, size_t count)
+	writes up to count bytes fromthe buffer starting at buf into the file referred to fd
+	writing takes place at the file offset
+	file offset is incremented by the number of bytes actually written.
+	the file offset is set th EOF before writing when file was opened with O_APPEND
+	partial writes can occur because of insufficent space on disk, 
+	or a blocked write()was interrupted by a signal handler after it had transferred some but not allrequested bytes.
+	another write call will transfer remaining bytes.
+	returns -1 on error
+
+malloc
+free
+
+stdio.h
+void perror(const char *s)
+	fucntion produces a message o n standard error describing the last error 
+	encountered during a call to a sysem or libraray function
+	the argument string should include the name of the function that incurred the error
+	converts errno variable (a value describing what went wrong) into something that is human readable
+	sys_errlist[] is a global error list but the use of strerror is preferred instead
+	if s is not NULL and *s is nto a null byte the arg string s is printed followed by a colon and a blank
+	then an error message correspoing to the current value of errno and a new line
+
+string.h
+char *strerror(int errnum)
+	returns a pointer to a string that describes that error code int eh argument errnum
+	for example if errnum is EINVAL, the returned descriptio will be "Invalid argument"
+
+unistd.h
+int access(const char *pathname, int mode)
+	checks whether the calling process can access the file pathname 
+	the check is done using the callign processs real UID and GID
+	answers the question "can the user who invoked this binary read/write/execute this file?"
+	the mode is either F_OK or a mask consisting of the bitwise OR of one or more of R_OK, W_OK X_OK
+	return value is 0 on success 
+	on failure, at least one mode was denied, or the file does not exist , returns -1
+
+unistd.h
+int dup(int oldfd)
+	system call creates a copy of the fd
+	the old and the new fds can be used interchangably, 
+	they refer to the same open fd and share same offset and status flags
+	returns new fd
+
+unistd.h
+int dup2(int oldfd, int newfd)
+	does the same as dup(), but instead of automatically using a new fd
+	it uses the indicated newfd
+	if the newfd was previously open, it is silently closed before being reused
+	if oldfd is not a valid file descriptor, then the call fails, and newfd is not closed
+	if oldfd is a valid file descriptor, 
+	and newfd has the same value as oldfd, then dup2 does nothing and returns newfd
+
+unistd.h
+int execve(const char *pathname, char *const argv[], char *const envp[])
+	executes the program referred to by pathname, 
+	this causes the program that is currently being run by the calling process to be replaced with a new program
+	with newly initialised stack, heap, and initilaized and uninitialised data segments
+	pathname must be a binaty exectuable, or a script starting with a shebang
+	argv contains args for the binary passed for pathname
+	envp is the environment of the new program which must be terminated by a NULL pointer
+
+exit
+fork
+pipe
+unlink
+wait
+waitpid
