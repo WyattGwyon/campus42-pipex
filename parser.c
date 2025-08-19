@@ -10,9 +10,13 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "pipex.h"
+
 int	arg_parser(int argc, char *argv[])
 {
-	int i;
+	t_pipe	pp;
+	int 	i;
+	int		pipefd[2];
 
 	i = 1;
 	if (argc != 5)
@@ -25,4 +29,10 @@ int	arg_parser(int argc, char *argv[])
 		i++;
 	}
 	printf("\n");
+	if (pipe(pipefd) == -1)
+	{
+		perror("pipe");
+		exit(EXIT_FAILURE);
+	};
+	return (0);
 }

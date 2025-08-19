@@ -11,21 +11,10 @@
 /* ************************************************************************** */
 
 #include <stdio.h>
+#include "pipex.h"
 
 int	main(int argc, char *argv[])
 {
-	int i;
-
-	i = 1;
-	if (argc != 5)
-	{
-		return (0);
-	}
-	while (i < argc)
-	{
-		printf("%s ", argv[i]);
-		i++;
-	}
-	printf("\n");
+	arg_parser(argc, argv);
 	return (0);
 }

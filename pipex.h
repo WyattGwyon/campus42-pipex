@@ -19,6 +19,16 @@
 #include <stdlib.h>
 #include <string.h>
 
+typedef struct s_pipe
+{
+	char	*infile;
+	int		fd_in;
+	char	*cmd1;
+	char	*cmd2;
+	char	*outfile;
+	int		fd_out;
+}	t_pipe;
+
 int	arg_parser(int argc, char *argv[]);
 
 # endif
