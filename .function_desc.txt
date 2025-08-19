@@ -4,9 +4,24 @@ int open(const char *pathname, int flags, mode_t mode)
 	if pathname does not exist, using O_CREAT flag can create it
 	mode is not required and will set to a default.
 	remains open across an execve()
+	returns -1 if failed
+
+	1) Create or overwrite a file:
+		O_WRONLY | O_CREAT | O_TRUNC
+	2) Append to a file (or create if missing)
+		O_APPEND | O_WRONLY | O_CREAT
+	3) Open existing file for reading
+		O_RDONLY
+	4) Open existing file for reading and writing
+		O_RDWR
+	5) exclusive creation
+		O_CREAT | O_WRONLY | O_EXCL
 
 
-close
+unistd.h
+int close(int fd)
+	 errors should be checked
+
 
 unistd.h
 ssize_t read(int fd, void *buf, size_t count)
@@ -39,16 +54,19 @@ void perror(const char *s)
 	sys_errlist[] is a global error list but the use of strerror is preferred instead
 	if s is not NULL and *s is nto a null byte the arg string s is printed followed by a colon and a blank
 	then an error message correspoing to the current value of errno and a new line
+	this is for fast simple error messaging, 
+	performs relatively the same function as ptrinf(..., strerror(errno))
 
 string.h
 char *strerror(int errnum)
 	returns a pointer to a string that describes that error code int eh argument errnum
 	for example if errnum is EINVAL, the returned descriptio will be "Invalid argument"
+	this serves for more flexible formatting and must be printed
 
 unistd.h
 int access(const char *pathname, int mode)
 	checks whether the calling process can access the file pathname 
-	the check is done using the callign processs real UID and GID
+	the check is done using the calling processs real UID and GID
 	answers the question "can the user who invoked this binary read/write/execute this file?"
 	the mode is either F_OK or a mask consisting of the bitwise OR of one or more of R_OK, W_OK X_OK
 	return value is 0 on success 
@@ -79,9 +97,60 @@ int execve(const char *pathname, char *const argv[], char *const envp[])
 	argv contains args for the binary passed for pathname
 	envp is the environment of the new program which must be terminated by a NULL pointer
 
-exit
-fork
-pipe
+stdlib.h
+void exit(int status)
+	causes normal process terminaition and the least signigicant byte of status is returned to parent
+
+unistd.h
+pid_t fork(void)
+	creates new process by duplciating the calling proccess. the new process is referred to as the chid proccess
+	the child and parent run on separate memory spacces but both memory sapces have the saem content
+	child process is 
+
+unistd.h
+int pipe(int fd[2])
+	fd[0] is read end
+	fd[1] is write end
+	data written to the write end of the pipe is buffered by the kernel until it is read from the read en of the pipe
+	0 is returned on success
+	-1 is returned on failure
+
 unlink
 wait
 waitpid
+
+Parent Process
+   |
+   | creates a pipe: fds[2] (read end fds[0], write end fds[1])
+   |
+   +--- fork() --> Child Process 1  --> exec("ls")
+   |               (writer)
+   |               stdout redirected to fds[1]
+   |
+   +--- fork() --> Child Process 2  --> exec("grep .c")
+                   (reader)
+                   stdin redirected from fds[0]
+
+
+In More Depth
+Parent Process
+   |
+   | creates pipe: fds[2] 
+   | fds[0] = read end, fds[1] = write end
+   |
+   +--- fork() --> Child Process 1 (writer)
+   |               Command: "ls"
+   |               close(fds[0])           // unused read end
+   |               dup2(fds[1], STDOUT)    // stdout -> pipe write end
+   |               close(fds[1])           // original fd no longer needed
+   |               exec("ls")
+   |
+   +--- fork() --> Child Process 2 (reader)
+                   Command: "grep .c"
+                   close(fds[1])           // unused write end
+                   dup2(fds[0], STDIN)     // stdin -> pipe read end
+                   close(fds[0])           // original fd no longer needed
+                   exec("grep .c")
+
+https://www.rozmichelle.com/pipes-forks-dups/			
+	   
