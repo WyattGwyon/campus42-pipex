@@ -1,5 +1,5 @@
 fcntl.h
-int open(const char *pathname, int flags, mode_t mode)
+int name, int flags, mode_t mode)
 	returns a nonnegative int fd, the lowest fd not currently open for the process
 	if pathname does not exist, using O_CREAT flag can create it
 	mode is not required and will set to a default.
@@ -87,6 +87,9 @@ int dup2(int oldfd, int newfd)
 	if oldfd is not a valid file descriptor, then the call fails, and newfd is not closed
 	if oldfd is a valid file descriptor, 
 	and newfd has the same value as oldfd, then dup2 does nothing and returns newfd
+	oldfd donates its data to file descriptor indicated as newfd
+	dup2 closes the 2nd arg (newfd), if it is open, thereby removing any previous reference, to terminal for example
+	then associates oldfd to the newfd
 
 unistd.h
 int execve(const char *pathname, char *const argv[], char *const envp[])
@@ -111,9 +114,12 @@ unistd.h
 int pipe(int fd[2])
 	fd[0] is read end
 	fd[1] is write end
-	data written to the write end of the pipe is buffered by the kernel until it is read from the read en of the pipe
+	data written to the write end of the pipe is buffered by the kernel until it is read from the read end of the pipe
 	0 is returned on success
 	-1 is returned on failure
+	pipe populates the array with two file descriptors, {3,4} for example
+	and it gives exclusive read permission to the first file descriptor
+	and it gives exclusive write permission to the second file descriptor
 
 unlink
 wait
@@ -153,4 +159,78 @@ Parent Process
                    exec("grep .c")
 
 https://www.rozmichelle.com/pipes-forks-dups/			
-	   
+
+###############################################################
+int pipe1[2];
+int pipe2[2];
+pipe(pipe1);
+pipe(pipe2);
+int pid = fork();
+
+
+   Kernel Buffers
+      +-------------------+     +-------------------+
+pipe1 |      buffer       |     |      buffer       | pipe2
+      +-------------------+     +-------------------+
+        ^           ^                 ^           ^
+        |           |                 |           |
+Parent: fd[0]     fd[1]             fd[0]       fd[1]
+Child:  fd[0]     fd[1]             fd[0]       fd[1]
+
+###############################################################
+int pipe1[2];
+pipe(pipe1);
+
+int pid1 = fork();
+int pid2 = fork();
+
+Process		Origin				FDs after fork
+P			original			pipe1[0], pipe1[1]
+C1			pid1 fork			pipe1[0], pipe1[1]
+C2			pid2 fork from P	pipe1[0], pipe1[1]
+C3			pid2 fork from C1	pipe1[0], pipe1[1]
+
+All four processes share the same kernel pipe buffer, but each has its own fd table
+################################################################
+
+
+Parent Process
+   |
+   | creates pipe1: pipe1[2]
+   |   pipe1[0] = read end, pipe1[1] = write end
+   |
+   +--- fork() --> Child Process 1 (writer: "ls")
+   |               close(pipe1[0])                  // unused read end
+   |               dup2(pipe1[1], STDOUT)           // stdout -> pipe1 write end
+   |               close(pipe1[1])                  // original fd no longer needed
+   |               exec("ls")
+   |
+   | creates pipe2: pipe2[2]
+   |   pipe2[0] = read end, pipe2[1] = write end
+   |
+   +--- fork() --> Child Process 2 (middle: "grep .c")
+   |               close(pipe1[1])                  // no longer writing to pipe1
+   |               dup2(pipe1[0], STDIN)            // stdin -> pipe1 read end
+   |               close(pipe1[0])
+   |               close(pipe2[0])                  // unused read end of pipe2
+   |               dup2(pipe2[1], STDOUT)           // stdout -> pipe2 write end
+   |               close(pipe2[1])
+   |               exec("grep .c")
+   |
+   | creates pipe3: pipe2[2]
+   |   pipe3[0] = read end, pipe3[1] = write end
+   |
+   +--- fork() --> Child Process 3 (middle: "grep .c")
+   |               close(pipe2[1])                  // no longer writing to pipe2
+   |               dup2(pipe2[0], STDIN)            // stdin -> pipe2 read end
+   |               close(pipe2[0])
+   |               close(pipe3[0])                  // unused read end of pipe3
+   |               dup2(pipe3[1], STDOUT)           // stdout -> pipe3 write end
+   |               close(pipe3[1])
+   |               execve("grep .c")
+   |
+   +--- fork() --> Child Process 4 (reader: "sort")
+                   close(pipe3[1])                  // unused write end
+                   dup2(pipe3[0], STDIN)            // stdin -> pipe3 read end
+                   close(pipe3[0])
+                   exec("sort")

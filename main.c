@@ -10,7 +10,6 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdio.h>
 #include "pipex.h"
 
 int	main(int argc, char *argv[])
@@ -18,3 +17,4 @@ int	main(int argc, char *argv[])
 	arg_parser(argc, argv);
 	return (0);
 }
+

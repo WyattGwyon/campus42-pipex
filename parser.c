@@ -17,6 +17,7 @@ int	arg_parser(int argc, char *argv[])
 	t_pipe	pp;
 	int 	i;
 	int		pipefd[2];
+	pid_t	pid;
 
 	i = 1;
 	if (argc != 5)
@@ -29,10 +30,36 @@ int	arg_parser(int argc, char *argv[])
 		i++;
 	}
 	printf("\n");
+
+
 	if (pipe(pipefd) == -1)
 	{
 		perror("pipe");
 		exit(EXIT_FAILURE);
 	};
+	pid = fork();
+	if (pid == -1)
+	{
+		perror("fork");
+		exit(EXIT_FAILURE);
+	}
+	if (pid == 0)
+	{
+		printf("hijo\n");
+		// close(pipefd[0]);
+		// dup2(pipefd[1], STDOUT_FILENO);
+		// close(pipefd[1]);
+		// execve(arg)
+		exit(EXIT_SUCCESS);
+	}
+	if (pid !=0)
+	{
+		printf("padre\n");
+	}
+
+	
+	printf("hola\n");
+	// 
+
 	return (0);
 }
