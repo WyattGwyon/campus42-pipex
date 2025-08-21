@@ -17,22 +17,22 @@ YELLOW  =	\033[1;33m
 BLUE    =	\033[0;34m
 
 CC		=	cc
-CFLAGS	=	-Wall -Wextra -Werror
+CFLAGS	=	-Wall -Wextra -Werror -I./libft
 
 NAME	=	pipex
 
-SRC		=	main.c\
-			arg_parser.c
+SRCS	=	main.c\
+			parser.c
 
-OBJS	=	$(SRC:%.c=%.o)
+OBJS	=	$(SRCS:%.c=%.o)
 
-LIBFT_DIR 	=	libft 
-LIBFT		=	$(LIBFT)/libft.a
+LIBFT_DIR 	=	libft/
+LIBFT		=	$(LIBFT_DIR)libft.a
 
 all:$(NAME)
 
 $(NAME):$(OBJS) $(LIBFT)
-	@echo "$(BLUE)[COMPILING]$(RESET) $< → $@"
+	@echo "$(BLUE)[PIPEX]$(RESET) $< → $@"
 	@$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBFT)
 # "To build the program $(NAME), you need all the object files ($(OBJS)) 
 # and the library ($(LIBFT)).
@@ -43,7 +43,7 @@ $(LIBFT):
 	@$(MAKE) -C $(LIBFT_DIR) all --no-print-directory
 
 %.o: %.c
-	@echo "$(BLUE)[COMPILING]$(RESET) $< → $@"
+	@printf "$(BLUE)[COMPILING]$(RESET) %-21s → %s\n" $< $@
 	@$(CC) $(CFLAGS) -c $< -o $@
 # $< and $@ are automatic variables that work on a file by file basis
 # it allows the ccommand to run oncce for each file in the list
@@ -54,9 +54,8 @@ clean:
 	@echo "+---------------------------+"
 	@echo "|  🧹  CLEANING OBJECTS     |"
 	@echo "+---------------------------+"
-	
 	@rm -rf *.o 
-	@$(MAKE) -C $(LIBFT_DIR) clean
+	@$(MAKE) -C $(LIBFT_DIR) clean --no-print-directory
 
 fclean: clean
 	@echo "$(RED)"

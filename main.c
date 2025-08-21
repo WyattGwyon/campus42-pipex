@@ -12,9 +12,9 @@
 
 #include "pipex.h"
 
-int	main(int argc, char *argv[])
+int	main(int argc, char *argv[], char **envp)
 {
-	arg_parser(argc, argv);
+	arg_parser(argc, argv, envp);
 	return (0);
 }
 

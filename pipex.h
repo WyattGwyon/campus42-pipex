@@ -31,6 +31,9 @@ typedef struct s_pipe
 	int		fd_out;
 }	t_pipe;
 
-int	arg_parser(int argc, char *argv[]);
+int	arg_parser(int argc, char *argv[], char **envp);
+int	ft_strncmp(const char *s1, const char *s2, size_t n);
+char	**ft_split(char const *s, char c);
+char	*ft_strjoin(char const *s1, char const *s2);
 
 # endif

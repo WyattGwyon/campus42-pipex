@@ -12,9 +12,9 @@
 
 #include "pipex.h"
 
-int	arg_parser(int argc, char *argv[])
+int	arg_parser(int argc, char *argv[], char **envp)
 {
-	t_pipe	pp;
+	// t_pipe	pp;
 	int 	i;
 	int		pipefd[2];
 	pid_t	pid;
@@ -45,16 +45,49 @@ int	arg_parser(int argc, char *argv[])
 	}
 	if (pid == 0)
 	{
-		printf("hijo\n");
+		//printf("hijo\n");
+		// int i = 0;
+		// while (envp[i] != NULL)
+		// {
+		// 	printf("%s\n", envp[i]);
+		// 	i++;
+		// }
 		// close(pipefd[0]);
 		// dup2(pipefd[1], STDOUT_FILENO);
 		// close(pipefd[1]);
-		// execve(arg)
+		// execve(*argv[2]);
 		exit(EXIT_SUCCESS);
 	}
-	if (pid !=0)
+	if (pid > 0)
 	{
-		printf("padre\n");
+		printf("pad\n");
+		int i = 0;
+		char *path_start = "PATH=";
+		char **raw_path;
+		char *path;
+		int	cmd;
+		while (envp[i] != NULL) 
+		{
+			if (!ft_strncmp(path_start, envp[i], 5))
+			{
+				printf("%s\n", (envp[i] + 5));
+				raw_path = ft_split(envp[i] + 5, ':');
+				int j = 0;
+				while (raw_path[j] != NULL)
+				{
+					path = ft_strjoin(raw_path[j], "/");
+					path = ft_strjoin(path, argv[2]);
+					//printf("%s\n", path);
+					cmd = access(path, F_OK);
+					if (cmd)
+						printf("COMMAND EXISTS at this PATH %s\n", path);
+					else 
+						printf("IS NOT HERE %s\n", path);
+					j++;
+				}
+			}
+			i++;
+		}
 	}
 
 	
