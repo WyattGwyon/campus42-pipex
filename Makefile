@@ -29,6 +29,10 @@ OBJS	=	$(SRCS:%.c=%.o)
 LIBFT_DIR 	=	libft/
 LIBFT		=	$(LIBFT_DIR)libft.a
 
+TEST_SRCS	=	.test.c
+TEST_OBJS	=	$(TEST_SRCS:%.c=%.o)
+TEST_BIN	=	test
+
 all:$(NAME)
 
 $(NAME):$(OBJS) $(LIBFT)
@@ -49,12 +53,15 @@ $(LIBFT):
 # it allows the ccommand to run oncce for each file in the list
 # it exapnads the pattern separately
 
+test: $(TEST_OBJS) $(NAME)
+	$(CC) $(CFLAGS) $^ -o $(TEST_BIN)
+
 clean:
 	@echo "$(YELLOW)"
 	@echo "+---------------------------+"
 	@echo "|  🧹  CLEANING OBJECTS     |"
 	@echo "+---------------------------+"
-	@rm -rf *.o 
+	@rm -rf *.o $(TEST_OBJS)
 	@$(MAKE) -C $(LIBFT_DIR) clean --no-print-directory
 
 fclean: clean
@@ -62,7 +69,7 @@ fclean: clean
 	@echo "+---------------------------+"
 	@echo "|  🔥 REMOVING EXECUTABLES  |"
 	@echo "+---------------------------+"
-	@rm -f $(NAME) 
+	@rm -f $(NAME) $(TEST_BIN)
 	@$(MAKE) -C $(LIBFT_DIR) fclean --no-print-directory
 	@echo "$(RESET)"
 	@echo "...now THAT'S effin' clean!\n"

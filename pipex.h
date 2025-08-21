@@ -31,6 +31,16 @@ typedef struct s_pipe
 	int		fd_out;
 }	t_pipe;
 
+typedef struct s_path
+{
+	char	*path_start;
+	char	**raw_path;
+	char	*path;
+	char	*cmd_path;
+	char	*cmd;
+	int		is_cmd;
+}	t_path;
+
 int	arg_parser(int argc, char *argv[], char **envp);
 int	ft_strncmp(const char *s1, const char *s2, size_t n);
 char	**ft_split(char const *s, char c);
