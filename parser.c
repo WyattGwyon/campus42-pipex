@@ -33,19 +33,14 @@ char *path_parser(char *cmd, char **envp)
 					p.path = ft_strjoin(p.raw_path[j], "/");
 					p.path = ft_strjoin(p.path, cmd);
 					p.is_cmd = access(p.path, F_OK);
-					if (!cmd)
-					{
-						printf("COMMAND EXISTS at this PATH %s\n", p.path);
+					if (!p.is_cmd)
 						return (p.path);
-					}
-					else 
-						printf("IS NOT HERE %s\n", p.path);
 					j++;
 				}
 			}
 			i++;
 		}
-	return(NULL);
+	return (NULL);
 }
 
 int	arg_parser(int argc, char *argv[], char **envp)
@@ -81,27 +76,36 @@ int	arg_parser(int argc, char *argv[], char **envp)
 	}
 	if (pid == 0)
 	{
-		//printf("hijo\n");
-		// int i = 0;
-		// while (envp[i] != NULL)
-		// {
-		// 	printf("%s\n", envp[i]);
-		// 	i++;
-		// }
-		// close(pipefd[0]);
-		// dup2(pipefd[1], STDOUT_FILENO);
-		// close(pipefd[1]);
-		// execve(*argv[2]);
-		exit(EXIT_SUCCESS);
-	}
-	if (pid > 0)
-	{
-		printf("pad\n");
+		close(pipefd[0]);
+		dup2(pipefd[1], STDOUT_FILENO);
+		close(pipefd[1]);
 		char *cmd_path;
+		extern char **environ;
 		
 		cmd_path = path_parser(argv[2], envp);
-		printf("%s\n", cmd_path);
+		char *exec_argv[] = {argv[2], NULL};
+		execve(cmd_path, exec_argv, environ);
+		exit(EXIT_SUCCESS);
 	}
+	
+	pid = fork();
+
+	if (pid == 0)
+	{
+		dup2(pipefd[0], STDIN_FILENO);
+		close(pipefd[0]);
+		//dup2(pipefd[1], STDOUT_FILENO);
+		close(pipefd[1]);
+		char *cmd_path;
+		extern char **environ;
+		
+		cmd_path = path_parser(argv[3], envp);
+		char *exec_argv[] = {argv[3], NULL};
+		execve(cmd_path, exec_argv, environ);
+		exit(EXIT_SUCCESS);
+			
+	}
+	
 
 	
 	printf("hola\n");
