@@ -39,11 +39,18 @@ typedef struct s_path
 	char	*cmd_path;
 	char	*cmd;
 	int		is_cmd;
+	int		i;
+	int		j;
 }	t_path;
 
-int	arg_parser(int argc, char *argv[], char **envp);
-int	ft_strncmp(const char *s1, const char *s2, size_t n);
+int		arg_parser(int argc, char *argv[], char **envp);
+int		ft_strncmp(const char *s1, const char *s2, size_t n);
 char	**ft_split(char const *s, char c);
 char	*ft_strjoin(char const *s1, char const *s2);
+char	*ft_strjoin_n(char **str_segs);
+size_t	ft_strlen(const char *s);
+void	*ft_calloc(size_t count, size_t size);
+char	*ft_strdup(const char *s1);
+char	*ft_strjoin_n(char **str_segs);
 
 # endif

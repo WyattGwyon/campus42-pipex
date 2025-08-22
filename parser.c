@@ -12,33 +12,55 @@
 
 #include "pipex.h"
 
+char	*ft_strjoin_free(char *s1, const char *s2)
+{
+	char *joined;
 
+	joined = ft_strjoin(s1, s2);
+	free(s1);
+	return (joined);
+}
 
-char *path_parser(char *cmd, char **envp)
+char	*ft_strjoin_n(char **str_segs)
+{
+	int		i;
+	char	*joined_str;
+
+	if (!str_segs || !*str_segs)
+		return (ft_calloc(1, 1));
+	joined_str = ft_strdup(str_segs[0]);
+	i = 1;
+	while (str_segs[i])
+	{
+		joined_str = ft_strjoin_free(joined_str, str_segs[i]);
+		i++;
+	}
+	return (joined_str);
+}
+
+char	*path_parser(char *cmd, char **envp)
 {
 	t_path	p;
-	int		i;
-	int		j;
 
 	p.path_start = "PATH=";
-	i = 0;
-	while (envp[i] != NULL) 
+	p.i = 0;
+	while (envp[p.i] != NULL) 
 		{
-			if (!ft_strncmp(p.path_start, envp[i], 5))
+			if (!ft_strncmp(p.path_start, envp[p.i], 5))
 			{
-				p.raw_path = ft_split(envp[i] + 5, ':');
-				j = 0;
-				while (p.raw_path[j] != NULL)
+				p.raw_path = ft_split(envp[p.i] + 5, ':');
+				p.j = 0;
+				while (p.raw_path[p.j] != NULL)
 				{
-					p.path = ft_strjoin(p.raw_path[j], "/");
+					p.path = ft_strjoin(p.raw_path[p.j], "/");
 					p.path = ft_strjoin(p.path, cmd);
 					p.is_cmd = access(p.path, F_OK);
 					if (!p.is_cmd)
 						return (p.path);
-					j++;
+					p.j++;
 				}
 			}
-			i++;
+			p.i++;
 		}
 	return (NULL);
 }

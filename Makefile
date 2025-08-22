@@ -21,10 +21,12 @@ CFLAGS	=	-Wall -Wextra -Werror -I./libft
 
 NAME	=	pipex
 
-SRCS	=	main.c\
-			parser.c
+SRCS	=	parser.c
 
 OBJS	=	$(SRCS:%.c=%.o)
+
+MAIN	= 	main.c
+MAIN_OBJ=	$(MAIN: .c=.o)
 
 LIBFT_DIR 	=	libft/
 LIBFT		=	$(LIBFT_DIR)libft.a
@@ -35,9 +37,9 @@ TEST_BIN	=	test
 
 all:$(NAME)
 
-$(NAME):$(OBJS) $(LIBFT)
+$(NAME):$(OBJS) $(MAIN_OBJ) $(LIBFT)
 	@echo "$(BLUE)[PIPEX]$(RESET) $< → $@"
-	@$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBFT)
+	@$(CC) $(CFLAGS) $^ -o $@
 # "To build the program $(NAME), you need all the object files ($(OBJS)) 
 # and the library ($(LIBFT)).
 # Then, run the compiler ($(CC)) with the flags ($(CFLAGS)) to link them 
@@ -53,15 +55,16 @@ $(LIBFT):
 # it allows the ccommand to run oncce for each file in the list
 # it exapnads the pattern separately
 
-test: $(TEST_OBJS) $(NAME)
-	$(CC) $(CFLAGS) $^ -o $(TEST_BIN)
+test: $(OBJS) $(TEST_OBJS) $(LIBFT)
+	@printf "$(YELLOW)[TESTING]$(RESET) %-21s → %s\n" $< $@
+	@$(CC) $(CFLAGS) $^ -o $(TEST_BIN)
 
 clean:
 	@echo "$(YELLOW)"
 	@echo "+---------------------------+"
 	@echo "|  🧹  CLEANING OBJECTS     |"
 	@echo "+---------------------------+"
-	@rm -rf *.o $(TEST_OBJS)
+	@rm -rf *.o $(OBJS) $(MAIN_OBJ) $(TEST_OBJS)
 	@$(MAKE) -C $(LIBFT_DIR) clean --no-print-directory
 
 fclean: clean
