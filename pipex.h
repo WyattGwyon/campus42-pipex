@@ -35,6 +35,7 @@ typedef struct s_path
 {
 	char	*path_start;
 	char	**raw_path;
+	char	**path_array;
 	char	*path;
 	char	*cmd_path;
 	char	*cmd;

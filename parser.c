@@ -38,6 +38,16 @@ char	*ft_strjoin_n(char **str_segs)
 	return (joined_str);
 }
 
+static char	**three_array(char *s1, char *s2, char *s3)
+{
+	char	**array[3];
+
+	*array[0] = s1;
+	*array[1] = s2;
+	*array[2] = s3;
+	return (array);
+}
+
 char	*path_parser(char *cmd, char **envp)
 {
 	t_path	p;
@@ -52,8 +62,8 @@ char	*path_parser(char *cmd, char **envp)
 				p.j = 0;
 				while (p.raw_path[p.j] != NULL)
 				{
-					p.path = ft_strjoin(p.raw_path[p.j], "/");
-					p.path = ft_strjoin(p.path, cmd);
+					p.path_array = three_array(p.raw_path, "/", cmd);
+					p.path = ft_strjoin_n(p.path_array);
 					p.is_cmd = access(p.path, F_OK);
 					if (!p.is_cmd)
 						return (p.path);
