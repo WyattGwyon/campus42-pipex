@@ -38,14 +38,28 @@ char	*ft_strjoin_n(char **str_segs)
 	return (joined_str);
 }
 
-static char	**three_array(char *s1, char *s2, char *s3)
-{
-	char	**array[3];
+// static char	**three_array(char *s1, char *s2, char *s3)
+// {
+// 	char	*array[4];
 
-	*array[0] = s1;
-	*array[1] = s2;
-	*array[2] = s3;
-	return (array);
+// 	array[0] = s1;
+// 	array[1] = s2;
+// 	array[2] = s3;
+// 	array[3] = NULL;
+// 	return (array);
+// }
+
+char	*make_path(const char *dir, const char *cmd)
+{
+	char	*tmp;
+	char	*full;
+
+	tmp = ft_strjoin(dir , "/");
+	if (!tmp)
+		return (NULL);
+	full = ft_strjoin(tmp, cmd);
+	free(tmp);
+	return(full);
 }
 
 char	*path_parser(char *cmd, char **envp)
@@ -62,8 +76,7 @@ char	*path_parser(char *cmd, char **envp)
 				p.j = 0;
 				while (p.raw_path[p.j] != NULL)
 				{
-					p.path_array = three_array(p.raw_path, "/", cmd);
-					p.path = ft_strjoin_n(p.path_array);
+					p.path = make_path(p.path, cmd);
 					p.is_cmd = access(p.path, F_OK);
 					if (!p.is_cmd)
 						return (p.path);
