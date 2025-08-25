@@ -26,7 +26,7 @@ SRCS	=	parser.c
 OBJS	=	$(SRCS:%.c=%.o)
 
 MAIN	= 	main.c
-MAIN_OBJ=	$(MAIN: .c=.o)
+MAIN_OBJ=	$(MAIN:.c=.o)
 
 LIBFT_DIR 	=	libft/
 LIBFT		=	$(LIBFT_DIR)libft.a

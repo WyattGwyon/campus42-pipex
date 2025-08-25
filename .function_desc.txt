@@ -234,3 +234,30 @@ Parent Process
                    dup2(pipe3[0], STDIN)            // stdin -> pipe3 read end
                    close(pipe3[0])
                    exec("sort")
+
+
+
+++++++++++++++++++
+Planning of structures
+information need before we start the function of the pipes
+
+char	*infile
+char	*outfile
+char	**commands (array of strings of input commands)
+char	**command_paths (array of strings, command paths expanded)
+int		command_cnt
+
+we can create stucts that can be members of other structs so as to have
+deeper structs.
+
+this will require at the same time deeper freeing.
+
+
+
+
+Parse args correctly
+check that cmd is executable/exists
+check that permissions exist to open file 
+check that permissions exist to execute command
+manage certain errors correctly
+when cmd does not exist

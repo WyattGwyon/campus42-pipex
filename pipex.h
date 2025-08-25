@@ -33,18 +33,31 @@ typedef struct s_pipe
 
 typedef struct s_path
 {
-	char	*path_start;
-	char	**raw_path;
+	char	*path_start;//
+	char	**raw_path;//
 	char	**path_array;
-	char	*path;
-	char	*cmd_path;
-	char	*cmd;
-	int		is_cmd;
-	int		i;
-	int		j;
+	char	*path;//
+	int		is_cmd;//
+	int		i;//
+	int		j;//
 }	t_path;
 
-int		arg_parser(int argc, char *argv[], char **envp);
+typedef	struct s_cmd
+{
+	char	*raw_cmd;
+	char	**argv;
+	char	*path;
+}	t_cmd;
+
+typedef struct s_pipex
+{
+	char	*infile;
+	char	*outfile;
+	t_cmd 	**commands;
+	int		cmd_cnt;
+}	t_pipex;
+
+int		arg_parser(int argc, char *argv[], char **envp, t_pipex *p);
 int		ft_strncmp(const char *s1, const char *s2, size_t n);
 char	**ft_split(char const *s, char c);
 char	*ft_strjoin(char const *s1, char const *s2);
@@ -53,5 +66,6 @@ size_t	ft_strlen(const char *s);
 void	*ft_calloc(size_t count, size_t size);
 char	*ft_strdup(const char *s1);
 char	*ft_strjoin_n(char **str_segs);
+void	ft_strarr_free(char ***strarr);
 
 # endif

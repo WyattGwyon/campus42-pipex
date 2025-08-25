@@ -54,11 +54,15 @@ char	*make_path(const char *dir, const char *cmd)
 	char	*tmp;
 	char	*full;
 
+	if (!dir || !cmd)
+		return (NULL);
 	tmp = ft_strjoin(dir , "/");
 	if (!tmp)
 		return (NULL);
 	full = ft_strjoin(tmp, cmd);
 	free(tmp);
+	if (!full)
+		return (NULL);
 	return(full);
 }
 
@@ -73,13 +77,16 @@ char	*path_parser(char *cmd, char **envp)
 			if (!ft_strncmp(p.path_start, envp[p.i], 5))
 			{
 				p.raw_path = ft_split(envp[p.i] + 5, ':');
+				if (!p.raw_path)
+					return (NULL);
 				p.j = 0;
 				while (p.raw_path[p.j] != NULL)
 				{
-					p.path = make_path(p.path, cmd);
-					p.is_cmd = access(p.path, F_OK);
-					if (!p.is_cmd)
-						return (p.path);
+					if (!(p.path = make_path(p.raw_path[p.j], cmd)))
+						return(ft_strarr_free(&p.raw_path), NULL);
+					if (!access(p.path, X_OK))
+						return (ft_strarr_free(&p.raw_path), p.path);
+					free(p.path);
 					p.j++;
 				}
 			}
@@ -88,26 +95,19 @@ char	*path_parser(char *cmd, char **envp)
 	return (NULL);
 }
 
-int	arg_parser(int argc, char *argv[], char **envp)
+int	arg_parser(int argc, char *argv[], char **envp, t_pipex *p)
 {
-	// t_pipe	pp;
 	int 	i;
 	int		pipefd[2];
 	pid_t	pid;
+
 
 	i = 1;
 	if (argc < 5)
 	{
 		return (0);
 	}
-	while (i < argc)
-	{
-		printf("%s ", argv[i]);
-		i++;
-	}
-	printf("\n");
-
-
+	
 	if (pipe(pipefd) == -1)
 	{
 		perror("pipe");
@@ -121,14 +121,15 @@ int	arg_parser(int argc, char *argv[], char **envp)
 	}
 	if (pid == 0)
 	{
+		char *cmd_path;
+		extern char **environ;
+		cmd_path = path_parser(argv[2], envp);
+		printf("cmd1_path %s\n", cmd_path);
+		char *exec_argv[] = {argv[2], NULL};
+
 		close(pipefd[0]);
 		dup2(pipefd[1], STDOUT_FILENO);
 		close(pipefd[1]);
-		char *cmd_path;
-		extern char **environ;
-		
-		cmd_path = path_parser(argv[2], envp);
-		char *exec_argv[] = {argv[2], NULL};
 		execve(cmd_path, exec_argv, environ);
 		exit(EXIT_SUCCESS);
 	}
@@ -139,22 +140,33 @@ int	arg_parser(int argc, char *argv[], char **envp)
 	{
 		dup2(pipefd[0], STDIN_FILENO);
 		close(pipefd[0]);
-		//dup2(pipefd[1], STDOUT_FILENO);
+		dup2(pipefd[1], STDOUT_FILENO);
 		close(pipefd[1]);
 		char *cmd_path;
 		extern char **environ;
 		
 		cmd_path = path_parser(argv[3], envp);
+		fprintf(stderr,"cmd2_path %s\n", cmd_path);
 		char *exec_argv[] = {argv[3], NULL};
 		execve(cmd_path, exec_argv, environ);
-		exit(EXIT_SUCCESS);
-			
+		exit(EXIT_SUCCESS);	
 	}
-	
 
-	
-	printf("hola\n");
-	// 
+	pid = fork();
 
+	if (pid == 0)
+	{
+		dup2(pipefd[0], STDIN_FILENO);
+		close(pipefd[0]);
+		close(pipefd[1]);
+		char *cmd_path;
+		extern char **environ;
+		
+		cmd_path = path_parser(argv[4], envp);
+		printf("cmd3_path %s\n", cmd_path);
+		char *exec_argv[] = {argv[3], NULL};
+		execve(cmd_path, exec_argv, environ);
+		exit(EXIT_SUCCESS);	
+	}
 	return (0);
 }

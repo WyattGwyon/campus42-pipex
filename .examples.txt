@@ -1,0 +1,10 @@
+< doesnotexist.txt jkl "wc -l" > out.txt
+zsh: command not found: jkl
+
+<testfile.txt ./special | wc 
+      2      11      53
+
+<testfile.txt ./specia | wc  
+zsh: no such file or directory: ./specia
+      0       0       0
+

@@ -12,8 +12,13 @@
 
 #include "pipex.h"
 
-int	main(int argc, char *argv[], char **envp[])
+int	main(int argc, char *argv[], char **envp)
 {
-	arg_parser(argc, argv, envp);
+	t_pipex	p;
+
+	arg_parser(argc, argv, envp, &p);
+
+	//execute_pipe(&p);
+	//clean_pipe(%p);
 	return (0);
 }
