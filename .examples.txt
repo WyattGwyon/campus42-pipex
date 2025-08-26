@@ -8,3 +8,35 @@ zsh: command not found: jkl
 zsh: no such file or directory: ./specia
       0       0       0
 
+sleep 1 | "" | sleep 1
+zsh: permission denied: 
+(but sleep waits 1 second)
+pipe tries to execute file with name ""  
+
+
+awk '{ print $1 }' testfile.txt
+hello
+this
+
+< /etc/passwd grep root | wc -l > out.txt
+
+< /etc/passwd cut -d: -f1 | sort | head -n 5 > out.txt
+
+< infile tr a-z A-Z | sort | uniq > out.txt
+
+< infile cat | tr -s ' ' '\n' | grep -v '^$' | wc -l > out.txt
+
+< emptyfile.txt cat | wc -l > out.txt
+
+< /etc/passwd grep nobody | cut -d: -f1 | sort | tail -n 2 > out.txt
+
+
+# Unset PATH temporarily
+export OLD_PATH="$PATH"
+unset PATH
+
+# Do your test
+./pipex infile "grep foo" "wc -l" outfile
+
+# Restore PATH
+export PATH="$OLD_PATH"

@@ -17,8 +17,7 @@ int	main(int argc, char *argv[], char **envp)
 	t_pipex	p;
 
 	arg_parser(argc, argv, envp, &p);
-
-	//execute_pipe(&p);
+	execute_pipe(&p);
 	//clean_pipe(%p);
 	return (0);
 }

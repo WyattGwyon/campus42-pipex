@@ -12,6 +12,9 @@
 
 #include "pipex.h"
 
+// frees the first string 
+// because the first arg of ft_stjoin_n is always a malloced process
+// this is healper function only for ft_strjoin_n
 char	*ft_strjoin_free(char *s1, const char *s2)
 {
 	char *joined;
@@ -107,32 +110,17 @@ int	arg_parser(int argc, char *argv[], char **envp, t_pipex *p)
 	{
 		return (0);
 	}
-	
-	if (pipe(pipefd) == -1)
-	{
-		perror("pipe");
-		exit(EXIT_FAILURE);
-	};
-	pid = fork();
-	if (pid == -1)
-	{
-		perror("fork");
-		exit(EXIT_FAILURE);
-	}
-	if (pid == 0)
-	{
-		char *cmd_path;
-		extern char **environ;
-		cmd_path = path_parser(argv[2], envp);
-		printf("cmd1_path %s\n", cmd_path);
-		char *exec_argv[] = {argv[2], NULL};
 
-		close(pipefd[0]);
-		dup2(pipefd[1], STDOUT_FILENO);
-		close(pipefd[1]);
-		execve(cmd_path, exec_argv, environ);
-		exit(EXIT_SUCCESS);
+	char *cmd_path;
+	extern char **environ;
+	cmd_path = path_parser(argv[2], envp);
+	if (!cmd_path)
+	{
+		fprintf(stderr, "%s: command not found: %s\n", argv[0], argv[2]);
+		exit(EXIT_FAILURE);
 	}
+
+
 	
 	pid = fork();
 

@@ -53,8 +53,8 @@ typedef struct s_pipex
 {
 	char	*infile;
 	char	*outfile;
-	t_cmd 	**commands;
 	int		cmd_cnt;
+	t_cmd 	**commands;
 }	t_pipex;
 
 int		arg_parser(int argc, char *argv[], char **envp, t_pipex *p);

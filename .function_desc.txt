@@ -158,8 +158,9 @@ Parent Process
                    close(fds[0])           // original fd no longer needed
                    exec("grep .c")
 
-https://www.rozmichelle.com/pipes-forks-dups/			
-
+https://www.rozmichelle.com/pipes-forks-dups/
+https://www.fmc-modeling.org/category/projects/apache/amp/A_4_Pipes.html			
+https://excalidraw.com/#json=aGcfyppXP9ulhd6aiWKEA,pJd7nl5WXPCydPgV4Rtx9A
 ###############################################################
 int pipe1[2];
 int pipe2[2];
@@ -261,3 +262,72 @@ check that permissions exist to open file
 check that permissions exist to execute command
 manage certain errors correctly
 when cmd does not exist
+
+
+t_pipex pipex
+char *infile -> "hello.txt" or "Makefile"
+char *outfile -> "out.txt"
+int  cmd_cnt -> argc - 3 (if first and last args are files)
+t_cmd **cmd -> {"ls -la", {"ls", "-la", NULL}, "/usr/bin/ls"}, 
+				{"wc -l",{"wc", "-l", NULL}, "/usr/bin/wc" },
+				 "echo" etc, 
+				 "mv" etc
+
+pipex.cmd 
+char *raw_cmd -> "ls -la", "wc -l", "echo 'hello world'", "mv test.txt move.txt"
+char **argv -> {"ls", "-la", NULL}, {"wc", "-l", NULL},
+				{"echo", "'hello world'"}, 
+				{"mv", "test.txt","out.txt", NULL}
+char *path -> "/usr/bin/ls", "/usr/bin/echo", "/usr/bin/wc",
+				"/usr/bin/mv"
+
+to execute for each argv that is a command
+execve(pipex.cmd.path, pipex.cmd.argv, environ)
+
+V^^^correction to above^^^^^V
+t_pipex pipex
+ ├─ infile   -> "infile"
+ ├─ outfile  -> "outfile"
+ ├─ cmd_cnt  -> 2
+ └─ commands -> [ t_cmd*, t_cmd* ]
+                 │        │
+                 ▼        ▼
+               t_cmd     t_cmd
+                │         │
+                ▼         ▼
+ raw_cmd -> "ls -la"   raw_cmd -> "wc -l"
+ argv    -> ["ls","-la",NULL]   argv -> ["wc","-l",NULL]
+ path    -> "/usr/bin/ls"       path -> "/usr/bin/wc"
+
+ pipex.commands
+   ┌──────────────────────┐
+   │ [0] -> (t_cmd struct)│
+   │ [1] -> (t_cmd struct)│
+   │ [2] -> (t_cmd struct)│
+   └──────────────────────┘
+
+execve(pipex.commands[i]->path, pipex.commands[i]->argv, environ);
+
+
+Your shell is responsible for:
+
+	parsing commands and arguments
+
+	resolving them in $PATH
+
+	handling redirections / pipes
+
+	calling fork() + execve()
+
+	handling wait() + exit status
+
+	printing errors related to the shell itself 
+	(like command not found, bad syntax, missing infile/outfile, etc.)
+
+The executed program is responsible for:
+
+	any errors that occur inside it 
+	(ls: cannot access file: No such file or directory, gio: ..., etc.)
+
+	those errors are not your concern — 
+	the program replaces your child process after execve().
