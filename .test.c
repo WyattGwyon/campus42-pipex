@@ -7,4 +7,5 @@ int main(void)
 	char *new_str = ft_strjoin_n(str_segs);
 	printf("%s\n", new_str);
 
+
 }	

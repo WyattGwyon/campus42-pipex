@@ -15,7 +15,7 @@
 
 
 
-int	execute_pipe(t_pipex p)
+int	execute_pipe(t_pipex *p, char **envp)
 {
 	int	pipefd[2];
 	int	pid;
@@ -34,7 +34,7 @@ int	execute_pipe(t_pipex p)
 	if (pid == 0)
 	{
 		char *cmd_path;
-		extern char **environ;
+	
 		cmd_path = path_parser(argv[2], envp);
 		if (!cmd_path)
 		{
@@ -47,7 +47,7 @@ int	execute_pipe(t_pipex p)
 		close(pipefd[0]);
 		dup2(pipefd[1], STDOUT_FILENO);
 		close(pipefd[1]);
-		execve(cmd_path, exec_argv, environ);
+		execve(cmd_path, exec_argv, envp);
 		exit(EXIT_SUCCESS);
 	}
 	
@@ -60,12 +60,12 @@ int	execute_pipe(t_pipex p)
 		dup2(pipefd[1], STDOUT_FILENO);
 		close(pipefd[1]);
 		char *cmd_path;
-		extern char **environ;
+		
 		
 		cmd_path = path_parser(argv[3], envp);
 		fprintf(stderr,"cmd2_path %s\n", cmd_path);
 		char *exec_argv[] = {argv[3], NULL};
-		execve(cmd_path, exec_argv, environ);
+		execve(cmd_path, exec_argv, envp);
 		exit(EXIT_SUCCESS);	
 	}
 	
@@ -77,12 +77,12 @@ int	execute_pipe(t_pipex p)
 		close(pipefd[0]);
 		close(pipefd[1]);
 		char *cmd_path;
-		extern char **environ;
+	
 		
 		cmd_path = path_parser(argv[4], envp);
 		printf("cmd3_path %s\n", cmd_path);
 		char *exec_argv[] = {argv[3], NULL};
-		execve(cmd_path, exec_argv, environ);
+		execve(cmd_path, exec_argv, envp);
 		exit(EXIT_SUCCESS);	
 	}
 }

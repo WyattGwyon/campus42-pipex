@@ -69,9 +69,16 @@ SRCS    =	ft_atoi.c\
 			ft_atol.c\
 			ft_strarr_free.c\
 			ft_strarr_len.c\
-			ft_strarr_join.c
+			ft_strarr_join.c\
 
-OBJS    = $(SRCS:.c=.o)
+# Define printf
+PRINTF_DIR 	= 	printf/
+PRINTF_SRCS	= 	$(PRINTF_DIR)ft_printf.c\
+				$(PRINTF_DIR)ft_printf_utils.c
+
+ALL_SRCS 	= 	$(SRCS) $(PRINTF_SRCS)
+
+OBJS		= 	$(ALL_SRCS:.c=.o)
 
 #Test file
 TEST_SRC = .test.c

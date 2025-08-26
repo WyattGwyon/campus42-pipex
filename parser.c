@@ -14,7 +14,7 @@
 
 // frees the first string 
 // because the first arg of ft_stjoin_n is always a malloced process
-// this is healper function only for ft_strjoin_n
+// this is helper function only for ft_strjoin_n
 char	*ft_strjoin_free(char *s1, const char *s2)
 {
 	char *joined;
@@ -40,17 +40,6 @@ char	*ft_strjoin_n(char **str_segs)
 	}
 	return (joined_str);
 }
-
-// static char	**three_array(char *s1, char *s2, char *s3)
-// {
-// 	char	*array[4];
-
-// 	array[0] = s1;
-// 	array[1] = s2;
-// 	array[2] = s3;
-// 	array[3] = NULL;
-// 	return (array);
-// }
 
 char	*make_path(const char *dir, const char *cmd)
 {
@@ -98,63 +87,42 @@ char	*path_parser(char *cmd, char **envp)
 	return (NULL);
 }
 
+// isolate values -infile name -outfile name -raw cmds -cmd_cnts
+// for each cmd split for argv avoid ' '(squote)
+// then path for cmd
 int	arg_parser(int argc, char *argv[], char **envp, t_pipex *p)
 {
-	int 	i;
-	int		pipefd[2];
-	pid_t	pid;
-
-
-	i = 1;
+	p->i = 0;
 	if (argc < 5)
 	{
-		return (0);
-	}
-
-	char *cmd_path;
-	extern char **environ;
-	cmd_path = path_parser(argv[2], envp);
-	if (!cmd_path)
-	{
-		fprintf(stderr, "%s: command not found: %s\n", argv[0], argv[2]);
+		ft_printf("pipex: usage: %s infile cmd1 cmd2 outfile\n", argv[0]);		
 		exit(EXIT_FAILURE);
 	}
-
-
-	
-	pid = fork();
-
-	if (pid == 0)
+	if (!access(argv[1], F_OK))
 	{
-		dup2(pipefd[0], STDIN_FILENO);
-		close(pipefd[0]);
-		dup2(pipefd[1], STDOUT_FILENO);
-		close(pipefd[1]);
-		char *cmd_path;
-		extern char **environ;
-		
-		cmd_path = path_parser(argv[3], envp);
-		fprintf(stderr,"cmd2_path %s\n", cmd_path);
-		char *exec_argv[] = {argv[3], NULL};
-		execve(cmd_path, exec_argv, environ);
-		exit(EXIT_SUCCESS);	
+		ft_printf("%s: no such file or directory: %s\n", argv[0], argv[1]);
+		p->infile = NULL;
 	}
-
-	pid = fork();
-
-	if (pid == 0)
+	else if (!access(argv[1], R_OK))
 	{
-		dup2(pipefd[0], STDIN_FILENO);
-		close(pipefd[0]);
-		close(pipefd[1]);
-		char *cmd_path;
-		extern char **environ;
-		
-		cmd_path = path_parser(argv[4], envp);
-		printf("cmd3_path %s\n", cmd_path);
-		char *exec_argv[] = {argv[3], NULL};
-		execve(cmd_path, exec_argv, environ);
-		exit(EXIT_SUCCESS);	
+		ft_printf("%s: permission denied: %s\n", argv[0], argv[1]);
+		p->infile = NULL;
+	}
+	else 
+		p->infile = ft_strdup(argv[1]);
+	if (!access(argv[argc-1], W_OK))
+	{
+		ft_printf("%s: permission denied: %s\n", argv[0], argv[argc-1]);
+		p->outfile = NULL;
+	}
+	else 
+		p->outfile = argv[argc-1];
+	p->cmd_cnt = argc - 3;
+	while (p->i < p->cmd_cnt)
+	{
+		p->commands[p->i] = ft_calloc(1, sizeof(t_cmd));
+		p->commands[p->i]->raw_cmd = argv[2 + p->i];
+		p->i++;
 	}
 	return (0);
 }
