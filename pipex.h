@@ -21,16 +21,6 @@
 #include <sys/wait.h>
 #include <sys/types.h>
 
-typedef struct s_pipe
-{
-	char	*infile;
-	int		fd_in;
-	char	*cmd1;
-	char	*cmd2;
-	char	*outfile;
-	int		fd_out;
-}	t_pipe;
-
 typedef struct s_path
 {
 	char	*path_start;
@@ -42,33 +32,40 @@ typedef struct s_path
 	int		j;
 }	t_path;
 
+typedef struct s_process
+{
+
+}	t_process;
+
 typedef	struct s_cmd
 {
 	char	*raw_cmd;
 	char	**argv;
 	char	*path;
+	char	*cmd;
 }	t_cmd;
 
-typedef struct s_pipex
+typedef struct s_pipe_args
 {
 	char	*infile;
+	int		infile_fd;
 	char	*outfile;
+	int		outfile_fd;
 	int		cmd_cnt;
 	int		i;
-	t_cmd 	**commands;
-}	t_pipex;
+	t_cmd 	**c;
+}	t_pipe_args;
 
-int		arg_parser(int argc, char *argv[], char **envp, t_pipex *p);
+int		arg_parser(int argc, char *argv[], t_pipe_args *p);
 int		ft_strncmp(const char *s1, const char *s2, size_t n);
 char	**ft_split(char const *s, char c);
 char	*ft_strjoin(char const *s1, char const *s2);
-char	*ft_strjoin_n(char **str_segs);
 size_t	ft_strlen(const char *s);
 void	*ft_calloc(size_t count, size_t size);
 char	*ft_strdup(const char *s1);
-char	*ft_strjoin_n(char **str_segs);
 void	ft_strarr_free(char ***strarr);
 int		ft_printf(const char *fmt, ...);
-
+void	ft_putstr_fd(char *s, int fd);
+char	*ft_strjoin(char const *s1, char const *s2);
 
 # endif

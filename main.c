@@ -14,10 +14,15 @@
 
 int	main(int argc, char *argv[], char **envp)
 {
-	t_pipex	p;
+	t_pipe_args	pa;
 
-	arg_parser(argc, argv, envp, &p);
-	//execute_pipe(&p, envp);
+	arg_parser(argc, argv, &pa);
+	pa.i = 0;
+	while (pa.i < pa.cmd_cnt)
+	{
+		execute_pipe(&pa, envp);
+		pa.i++;
+	}
 	//clean_pipe(%p);
 	return (0);
 }

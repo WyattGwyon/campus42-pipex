@@ -12,13 +12,14 @@
 
 #include "pipex.h"
 
+pid_t	stick_n_your_pipe_n_fork_it()
 
-
-
-int	execute_pipe(t_pipex *p, char **envp)
+int	pipe_loop(t_pipe_args *pa, char **envp)
 {
 	int	pipefd[2];
-	int	pid;
+	int	prev_fd;
+	pid_t	pid;
+	pid_t	pids[pa->cmd_cnt];
 
 	if (pipe(pipefd) == -1)
 	{
@@ -31,14 +32,16 @@ int	execute_pipe(t_pipex *p, char **envp)
 		perror("fork");
 		exit(EXIT_FAILURE);
 	}
+
+
 	if (pid == 0)
 	{
 		char *cmd_path;
 	
-		cmd_path = path_parser(argv[2], envp);
+		cmd_path = path_parser(pa->commands[pa->i]->raw_cmd, envp);
 		if (!cmd_path)
 		{
-			fprintf(stderr, "%s: command not found: %s\n", argv[0], argv[2]);
+			fprintf(stderr, "pipex: command not found: %s\n", argv[2]);
 			exit(EXIT_FAILURE);
 		}
 		printf("cmd1_path %s\n", cmd_path);

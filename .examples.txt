@@ -13,40 +13,9 @@ zsh: permission denied:
 (but sleep waits 1 second)
 pipe tries to execute file with name ""  
 
-
 awk '{ print $1 }' testfile.txt
 hello
 this
-
-< /etc/passwd grep root | wc -l > out.txt
-
-< /etc/passwd cut -d: -f1 | sort | head -n 5 > out.txt
-
-< infile tr a-z A-Z | sort | uniq > out.txt
-
-< infile cat | tr -s ' ' '\n' | grep -v '^$' | wc -l > out.txt
-
-< emptyfile.txt cat | wc -l > out.txt
-
-< /etc/passwd grep nobody | cut -d: -f1 | sort | tail -n 2 > out.txt
-
-
-# Unset PATH temporarily
-export OLD_PATH="$PATH"
-unset PATH
-
-# Do your test
-./pipex infile "grep foo" "wc -l" outfile
-
-# Restore PATH
-export PATH="$OLD_PATH"
-
-infile.txt(must exist and be readable) else error
-infile cmd1 cmd2 cmd3 (if last arg is not intended to be file name it will be one anyways)
-touch ls
-creates a file name ls
-infile.txt cat wc ls 
-this will producce a file named ls with output of wc
 
 chmod u-r out.txt
 to remove read permissions from a file for user
@@ -58,3 +27,57 @@ zsh: permission denied: out.txt
 <out.txt cat | sleep 2         
 zsh: permission denied: out.txt
 (wait 2 seconds)
+
+<lkj.txt cat | echo "cat" | ls >out.txt
+zsh: no such file or directory: lkj.txt
+zsh: permission denied: out.txt
+
+IF COMMAND IF NOT VLAID BUT OUTFILE IS 
+<testfile.txt "llk 'hello woprl'" | lkhj >new.txt
+zsh: command not found: llk 'hello woprl'
+zsh: command not found: lkhj
+OUTPUTS COMMAND ERROR
+
+IF COMMAND IS NOT VALID AND OUTFILE IS NOT VALID
+<testfile.txt "llk 'hello woprl'" | lkhj >out.txt
+zsh: command not found: llk 'hello woprl'
+zsh: permission denied: out.txt
+OUTPUTS FILE ERROR
+
+LIST OF POSSIBLE COMMANDS
+< /etc/passwd grep root | wc -l > out.txt
+< /etc/passwd cut -d: -f1 | sort | head -n 5 > out.txt
+< infile tr a-z A-Z | sort | uniq > out.txt
+< infile cat | tr -s ' ' '\n' | grep -v '^$' | wc -l > out.txt
+< emptyfile.txt cat | wc -l > out.txt
+< /etc/passwd grep nobody | cut -d: -f1 | sort | tail -n 2 > out.txt
+
+
+ERASE PATH OF COMMAND
+# Unset PATH temporarily
+export OLD_PATH="$PATH"
+unset PATH
+
+# Do your test
+./pipex infile "grep foo" "wc -l" outfile
+
+# Restore PATH
+export PATH="$OLD_PATH"
+
+
+ONE CASE EXAMPLE
+infile.txt(must exist and be readable) else error
+infile cmd1 cmd2 cmd3 (if last arg is not intended to be file name it will be one anyways)
+touch ls
+creates a file name ls
+infile.txt cat wc ls 
+this will producce a file named ls with output of wc
+
+<Makefile awk '{ print $1 }'
+<Makefile awk "{ print $1 }"
+
+In shells, single quotes ('…') preserve literal values completely—nothing is expanded inside.
+
+Double quotes ("…" ) allow variable expansion ($VAR), command substitution ($(...)), and backslash escapes.
+
+Pipex typically just takes the command strings you provide (e.g., raw_cmd) and doesn't replicate shell quoting behavior unless you explicitly build support for it—usually via sh -c or a proper parser.

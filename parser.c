@@ -12,35 +12,6 @@
 
 #include "pipex.h"
 
-// frees the first string 
-// because the first arg of ft_stjoin_n is always a malloced process
-// this is helper function only for ft_strjoin_n
-char	*ft_strjoin_free(char *s1, const char *s2)
-{
-	char *joined;
-
-	joined = ft_strjoin(s1, s2);
-	free(s1);
-	return (joined);
-}
-
-char	*ft_strjoin_n(char **str_segs)
-{
-	int		i;
-	char	*joined_str;
-
-	if (!str_segs || !*str_segs)
-		return (ft_calloc(1, 1));
-	joined_str = ft_strdup(str_segs[0]);
-	i = 1;
-	while (str_segs[i])
-	{
-		joined_str = ft_strjoin_free(joined_str, str_segs[i]);
-		i++;
-	}
-	return (joined_str);
-}
-
 char	*make_path(const char *dir, const char *cmd)
 {
 	char	*tmp;
@@ -88,41 +59,41 @@ char	*path_parser(char *cmd, char **envp)
 }
 
 // isolate values -infile name -outfile name -raw cmds -cmd_cnts
-// for each cmd split for argv avoid ' '(squote)
-// then path for cmd
-int	arg_parser(int argc, char *argv[], char **envp, t_pipex *p)
+int	arg_parser(int argc, char *argv[], t_pipe_args *pa)
 {
-	p->i = 0;
+	pa->i = 0;
 	if (argc < 5)
 	{
 		ft_printf("pipex: usage: %s infile cmd1 cmd2 outfile\n", argv[0]);		
 		exit(EXIT_FAILURE);
 	}
-	if (!access(argv[1], F_OK))
+	pa->infile = argv[1];
+	pa->outfile = argv[argc-1];
+	pa->cmd_cnt = argc - 3;
+	while (pa->i < pa->cmd_cnt)
 	{
-		ft_printf("%s: no such file or directory: %s\n", argv[0], argv[1]);
-		p->infile = NULL;
-	}
-	else if (!access(argv[1], R_OK))
-	{
-		ft_printf("%s: permission denied: %s\n", argv[0], argv[1]);
-		p->infile = NULL;
-	}
-	else 
-		p->infile = ft_strdup(argv[1]);
-	if (!access(argv[argc-1], W_OK))
-	{
-		ft_printf("%s: permission denied: %s\n", argv[0], argv[argc-1]);
-		p->outfile = NULL;
-	}
-	else 
-		p->outfile = argv[argc-1];
-	p->cmd_cnt = argc - 3;
-	while (p->i < p->cmd_cnt)
-	{
-		p->commands[p->i] = ft_calloc(1, sizeof(t_cmd));
-		p->commands[p->i]->raw_cmd = argv[2 + p->i];
-		p->i++;
+		pa->c[pa->i] = ft_calloc(1, sizeof(t_cmd));
+		pa->c[pa->i]->raw_cmd = argv[2 + pa->i];
+		pa->i++;
 	}
 	return (0);
+}
+
+	// if (!access(argv[1], F_OK))
+	// 	ft_printf("pipex: no such file or directory: %s\n", argv[1]);
+	// else if (!access(argv[1], R_OK))
+	// 	ft_printf("pipex: permission denied: %s\n", argv[1]);
+	// if (!access(argv[argc-1], W_OK))
+	// ft_printf("pipex: permission denied: %s\n", argv[argc-1]);
+
+char **cmd_parser(char *raw_cmd)
+{
+	if raw_cmd has  single quotes
+		count number of ' '
+		
+		if number is not even send error message cannot parse
+		return
+
+		split the raw_cmd 
+
 }
