@@ -86,14 +86,14 @@ int	arg_parser(int argc, char *argv[], t_pipe_args *pa)
 	// if (!access(argv[argc-1], W_OK))
 	// ft_printf("pipex: permission denied: %s\n", argv[argc-1]);
 
-char **cmd_parser(char *raw_cmd)
-{
-	if raw_cmd has  single quotes
-		count number of ' '
+// char **cmd_parser(char *raw_cmd)
+// {
+// 	if raw_cmd has  single quotes
+// 		count number of ' '
 		
-		if number is not even send error message cannot parse
-		return
+// 		if number is not even send error message cannot parse
+// 		return
 
-		split the raw_cmd 
+// 		split the raw_cmd 
 
-}
+// }

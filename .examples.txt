@@ -80,4 +80,20 @@ In shells, single quotes ('…') preserve literal values completely—nothing is
 
 Double quotes ("…" ) allow variable expansion ($VAR), command substitution ($(...)), and backslash escapes.
 
-Pipex typically just takes the command strings you provide (e.g., raw_cmd) and doesn't replicate shell quoting behavior unless you explicitly build support for it—usually via sh -c or a proper parser.
+Pipex typically just takes the command strings you provide (e.g., raw_cmd) and doesn't replicate shell 
+quoting behavior unless you explicitly build support for it—usually via sh -c or a proper parser.
+
+<testfile.txt | cat 
+hello world
+this is a pipex test with the word hello
+
+<testfile.txt "" | wc 
+zsh: permission denied: 
+      0       0       0
+
+<testfile.txt   | wc -l
+2
+
+<testfile.txt   | cat
+hello world
+this is a pipex test with the word hello

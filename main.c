@@ -20,7 +20,7 @@ int	main(int argc, char *argv[], char **envp)
 	pa.i = 0;
 	while (pa.i < pa.cmd_cnt)
 	{
-		execute_pipe(&pa, envp);
+		pipex(&pa, envp);
 		pa.i++;
 	}
 	//clean_pipe(%p);

@@ -75,7 +75,7 @@ SRCS    =	ft_atoi.c\
 # Define printf
 PRINTF_DIR 	= 	printf/
 PRINTF_SRCS	= 	$(PRINTF_DIR)ft_printf.c\
-				$(PRINTF_DIR)ft_printf_utils.c
+
 
 ALL_SRCS 	= 	$(SRCS) $(PRINTF_SRCS)
 

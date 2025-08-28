@@ -43,6 +43,7 @@ typedef	struct s_cmd
 	char	**argv;
 	char	*path;
 	char	*cmd;
+	int		prev_fd;
 }	t_cmd;
 
 typedef struct s_pipe_args
@@ -57,6 +58,7 @@ typedef struct s_pipe_args
 }	t_pipe_args;
 
 int		arg_parser(int argc, char *argv[], t_pipe_args *p);
+char	*path_parser(char *cmd, char **envp);
 int		ft_strncmp(const char *s1, const char *s2, size_t n);
 char	**ft_split(char const *s, char c);
 char	*ft_strjoin(char const *s1, char const *s2);
@@ -67,5 +69,6 @@ void	ft_strarr_free(char ***strarr);
 int		ft_printf(const char *fmt, ...);
 void	ft_putstr_fd(char *s, int fd);
 char	*ft_strjoin(char const *s1, char const *s2);
+void	pipex(t_pipe_args *pa, char **envp);
 
 # endif

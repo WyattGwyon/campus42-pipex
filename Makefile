@@ -21,7 +21,8 @@ CFLAGS	=	-Wall -Wextra -Werror -I./libft
 
 NAME	=	pipex
 
-SRCS	=	parser.c
+SRCS	=	parser.c \
+			pipe_works.c
 
 OBJS	=	$(SRCS:%.c=%.o)
 

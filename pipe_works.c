@@ -12,80 +12,114 @@
 
 #include "pipex.h"
 
-pid_t	stick_n_your_pipe_n_fork_it()
-
-int	pipe_loop(t_pipe_args *pa, char **envp)
+void	print_error(char *str, char type)
 {
-	int	pipefd[2];
-	int	prev_fd;
-	pid_t	pid;
-	pid_t	pids[pa->cmd_cnt];
+	char *message;
 
-	if (pipe(pipefd) == -1)
-	{
-		perror("pipe");
-		exit(EXIT_FAILURE);
-	};
+	message = "NONE";
+	if (type == 'c')
+		message = ft_strjoin("pipex: command not found: ", str);	
+	else if (type == 'p')
+		message = ft_strjoin("pipex: permission denied: ", str);
+	else if (type == 'f')
+		message = ft_strjoin("pipex: no such file or directory: ", str);
+	else if (type == 'q')
+		message = ft_strjoin("pipex: unable to parse", str);
+	else if (type == 's')
+		message = "pipex Error: ft_split failed to allocate memory";
+	else if (type == 'j')
+		message = "pipex Error: ft_strjoin failed to allocate memory";
+	if (!message)
+		print_error(NULL, 'j');
+	ft_putstr_fd(message, 2);
+	ft_putstr_fd("\n", 2);
+	free(message);
+}
+
+pid_t	pipe_n_fork_it(int fd[2], int i, int cnt)
+{
+	pid_t	pid;
+
+	if (i != (cnt - 1))
+		if (pipe(fd) == -1)
+		{
+			perror("pipe");
+			exit(EXIT_FAILURE);
+		};
 	pid = fork();
 	if (pid == -1)
 	{
 		perror("fork");
 		exit(EXIT_FAILURE);
 	}
+	return (pid);
+}
 
-
-	if (pid == 0)
+// void	close_pipe(t_pipe_args *pa, int fd[2])
+// {
+// 	if (fd[0] != -1)
+// 		close(fd[0]);
+// 	if (fd[1] != -1)
+// 		close(fd[1]);
+// 	if (prev_fd != -1)
+// 		close(prev_fd);
+// 	if (pa->infile_fd != -1)
+// 		close(pa->infile_fd);
+// 	if (pa->outfile_fd != -1)
+// 		close(pa->outfile_fd);
+// }
+void	build_cmd(t_cmd *c, char **envp, int fd[2])
+{
+	c->argv = ft_split(c->raw_cmd, ' ');
+	if (!c->argv)
+		print_error(NULL, 's');
+	if (!c->argv[0])
 	{
-		char *cmd_path;
-	
-		cmd_path = path_parser(pa->commands[pa->i]->raw_cmd, envp);
-		if (!cmd_path)
+		print_error("", 'p');
+		close(fd[0]);
+		close(fd[1]);
+		exit(127);
+	}
+	c->cmd = c->argv[0];
+	c->path = path_parser(c->raw_cmd, envp);
+
+	if (!c->path)
+		print_error(c->cmd, 'c'); 
+
+}
+
+void	pipe_loop(int fd[2], char **envp, t_pipe_args *pa)
+{
+	close(fd[0]);
+	dup2(fd[1], STDOUT_FILENO);
+	close(fd[1]);
+	execve(pa->c[pa->i]->path, pa->c[pa->i]->argv, envp);
+	perror("execve");
+	exit(127);
+}
+
+void	pipex(t_pipe_args *pa, char **envp)
+{
+	int	fd[2];
+	pid_t	pid;
+	// pid_t	pids[pa->cmd_cnt];
+
+	pa->i = 0;
+	pa->infile_fd = open(pa->infile, O_RDONLY);
+	if (pa->infile_fd == -1)
+		perror(pa->infile);
+	pa->outfile_fd = open(pa->outfile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	if (pa->outfile_fd == -1)
+		perror(pa->outfile);
+	while (pa->i < pa->cmd_cnt)
+	{
+		pid = pipe_n_fork_it(fd, pa->i, pa->cmd_cnt);		
+		if (pid == 0)
 		{
-			fprintf(stderr, "pipex: command not found: %s\n", argv[2]);
-			exit(EXIT_FAILURE);
+			build_cmd(pa->c[pa->i], envp, fd);
+			pipe_loop(fd, envp, pa);
 		}
-		printf("cmd1_path %s\n", cmd_path);
-		char *exec_argv[] = {argv[2], NULL};
-		
-		close(pipefd[0]);
-		dup2(pipefd[1], STDOUT_FILENO);
-		close(pipefd[1]);
-		execve(cmd_path, exec_argv, envp);
-		exit(EXIT_SUCCESS);
+		pa->i++;
 	}
-	
-	pid = fork();
-	
-	if (pid == 0)
-	{
-		dup2(pipefd[0], STDIN_FILENO);
-		close(pipefd[0]);
-		dup2(pipefd[1], STDOUT_FILENO);
-		close(pipefd[1]);
-		char *cmd_path;
-		
-		
-		cmd_path = path_parser(argv[3], envp);
-		fprintf(stderr,"cmd2_path %s\n", cmd_path);
-		char *exec_argv[] = {argv[3], NULL};
-		execve(cmd_path, exec_argv, envp);
-		exit(EXIT_SUCCESS);	
-	}
-	
-	pid = fork();
-	
-	if (pid == 0)
-	{
-		dup2(pipefd[0], STDIN_FILENO);
-		close(pipefd[0]);
-		close(pipefd[1]);
-		char *cmd_path;
-	
-		
-		cmd_path = path_parser(argv[4], envp);
-		printf("cmd3_path %s\n", cmd_path);
-		char *exec_argv[] = {argv[3], NULL};
-		execve(cmd_path, exec_argv, envp);
-		exit(EXIT_SUCCESS);	
-	}
+	// close_pipe(pa, fd);
 }
