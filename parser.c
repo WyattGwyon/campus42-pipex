@@ -47,7 +47,7 @@ char	*path_parser(char *cmd, char **envp)
 				{
 					if (!(p.path = make_path(p.raw_path[p.j], cmd)))
 						return(ft_strarr_free(&p.raw_path), NULL);
-					if (!access(p.path, X_OK))
+					if (!access(p.path, X_OK) && !access(cmd, F_OK))
 						return (ft_strarr_free(&p.raw_path), p.path);
 					free(p.path);
 					p.j++;
