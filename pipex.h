@@ -20,6 +20,7 @@
 #include <string.h>
 #include <sys/wait.h>
 #include <sys/types.h>
+#include <errno.h>
 
 typedef struct s_path
 {
@@ -43,7 +44,9 @@ typedef	struct s_cmd
 	char	**argv;
 	char	*path;
 	char	*cmd;
+	int		fd[2];
 	int		prev_fd;
+	pid_t	pid;
 }	t_cmd;
 
 typedef struct s_pipe_args

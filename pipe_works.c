@@ -36,44 +36,28 @@ void	print_error(char *str, char type)
 	free(message);
 }
 
-pid_t	pipe_n_fork_it(int fd[2], int i, int cnt)
-{
-	pid_t	pid;
-
-	if (i != (cnt - 1))
-		if (pipe(fd) == -1)
-		{
-			perror("pipe");
-			exit(EXIT_FAILURE);
-		};
-	pid = fork();
-	if (pid == -1)
-	{
-		perror("fork");
-		exit(EXIT_FAILURE);
-	}
-	return (pid);
-}
 
 // void	close_pipe(t_pipe_args *pa, int fd[2])
 // {
-// 	if (fd[0] != -1)
-// 		close(fd[0]);
-// 	if (fd[1] != -1)
-// 		close(fd[1]);
-// 	if (prev_fd != -1)
-// 		close(prev_fd);
-// 	if (pa->infile_fd != -1)
-// 		close(pa->infile_fd);
-// 	if (pa->outfile_fd != -1)
-// 		close(pa->outfile_fd);
-// }
+	// 	if (fd[0] != -1)
+	// 		close(fd[0]);
+	// 	if (fd[1] != -1)
+	// 		close(fd[1]);
+	// 	if (prev_fd != -1)
+	// 		close(prev_fd);
+	// 	if (pa->infile_fd != -1)
+	// 		close(pa->infile_fd);
+	// 	if (pa->outfile_fd != -1)
+	// 		close(pa->outfile_fd);
+	// }
+
+	
 void	build_cmd(t_cmd *c, char **envp, int fd[2])
 {
 	c->argv = ft_split(c->raw_cmd, ' ');
 	if (!c->argv)
 		print_error(NULL, 's');
-	if (!c->argv[0])
+	if (c->argv[0] == 0)
 	{
 		print_error("", 'p');
 		close(fd[0]);
@@ -81,29 +65,47 @@ void	build_cmd(t_cmd *c, char **envp, int fd[2])
 		exit(127);
 	}
 	c->cmd = c->argv[0];
-	c->path = path_parser(c->raw_cmd, envp);
-
+	c->path = path_parser(c->cmd, envp);
 	if (!c->path)
 		print_error(c->cmd, 'c'); 
-
+	
 }
 
-void	pipe_loop(int fd[2], char **envp, t_pipe_args *pa)
+void	pipe_n_fork_it(t_pipe_args *pa)
 {
-	close(fd[0]);
-	dup2(fd[1], STDOUT_FILENO);
-	close(fd[1]);
-	execve(pa->c[pa->i]->path, pa->c[pa->i]->argv, envp);
+	if (pa->i != (pa->cmd_cnt - 1))
+		if (pipe(pa->c[pa->i]->fd) == -1)
+		{
+			perror("pipe");
+			exit(EXIT_FAILURE);
+		};
+	pa->c[pa->i]->pid = fork();
+	if (pa->c[pa->i]->pid  == -1)
+	{
+		perror("fork");
+		exit(EXIT_FAILURE);
+	}
+}
+
+void	pipe_loop(char **envp, t_cmd *cmd, t_pipe_args *pa)
+{
+	if (pa->i == 0)
+		dup2(pa->infile_fd, STDIN_FILENO);
+	else
+		dup2(cmd->prev_fd, STDIN_FILENO);
+	close(cmd->fd[0]);
+	if (pa->i == pa->cmd_cnt - 1)
+		dup2(pa->outfile_fd, STDOUT_FILENO);
+	else
+		dup2(cmd->fd[1], STDOUT_FILENO);
+	close(cmd->fd[1]);
+	execve(cmd->path, cmd->argv, envp);
 	perror("execve");
 	exit(127);
 }
 
 void	pipex(t_pipe_args *pa, char **envp)
 {
-	int	fd[2];
-	pid_t	pid;
-	// pid_t	pids[pa->cmd_cnt];
-
 	pa->i = 0;
 	pa->infile_fd = open(pa->infile, O_RDONLY);
 	if (pa->infile_fd == -1)
@@ -113,13 +115,33 @@ void	pipex(t_pipe_args *pa, char **envp)
 		perror(pa->outfile);
 	while (pa->i < pa->cmd_cnt)
 	{
-		pid = pipe_n_fork_it(fd, pa->i, pa->cmd_cnt);		
-		if (pid == 0)
+		pipe_n_fork_it(pa);		
+		if (pa->c[pa->i]->pid == 0)
 		{
-			build_cmd(pa->c[pa->i], envp, fd);
-			pipe_loop(fd, envp, pa);
+			build_cmd(pa->c[pa->i], envp, pa->c[pa->i]->fd);
+			pipe_loop(envp, pa->c[pa->i], pa);	
+		}
+		if (pa->c[pa->i]->pid > 0)
+		{	
+			if (pa->i < pa->cmd_cnt - 1)
+				pa->c[pa->i + 1]->prev_fd = pa->c[pa->i]->fd[0];
+			if (pa->i != 0)
+				close(pa->c[pa->i]->fd[0]);
+			close(pa->c[pa->i]->fd[1]);
 		}
 		pa->i++;
+	}	
+	int i = 0;
+	int	status;
+	while (i < pa->cmd_cnt)
+	{
+		if (pa->c[pa->i]->pid > 0)
+		{	
+			waitpid(pa->c[i]->pid, &status, 0);
+			i++;
+		}
 	}
+	
 	// close_pipe(pa, fd);
+	return ;
 }
