@@ -68,6 +68,7 @@ SRCS    =	ft_atoi.c\
 			ft_lstiter.c\
 			ft_lstmap.c\
 			ft_atol.c\
+			ft_atof.c\
 			ft_strarr_free.c\
 			ft_strarr_len.c\
 			ft_strarr_join.c\
@@ -101,7 +102,8 @@ $(NAME): $(OBJS)
 
 # Rule to compile test
 test: $(TEST_OBJ) $(NAME)
-	$(CC) $(CFLAGS) $^ -o $(TEST_BIN) 
+	@echo "$(GREEN)[LIBFT]$(RESET) Ready For Testing..."
+	@$(CC) $(CFLAGS) $^ -o $(TEST_BIN) 
 
 # Clean object files
 clean:
