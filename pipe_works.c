@@ -73,12 +73,14 @@ void	build_cmd(t_cmd *c, char **envp, int fd[2])
 
 void	pipe_n_fork_it(t_pipe_args *pa)
 {
-	if (pa->i != (pa->cmd_cnt - 1))
+	if (pa->i < (pa->cmd_cnt - 1))
 		if (pipe(pa->c[pa->i]->fd) == -1)
 		{
 			perror("pipe");
 			exit(EXIT_FAILURE);
 		};
+	if (pa->i > 0)
+        pa->c[pa->i]->prev_fd = pa->c[pa->i-1]->fd[0];
 	pa->c[pa->i]->pid = fork();
 	if (pa->c[pa->i]->pid  == -1)
 	{
@@ -87,38 +89,64 @@ void	pipe_n_fork_it(t_pipe_args *pa)
 	}
 }
 
+// void	first_pipe(t_cmd *cmd, int infile_fd)
+// {
+	// 	dup2(infile_fd, STDIN_FILENO);
+	// 	close(cmd->fd[0]);
+	// 	dup2(cmd->fd[1], STDOUT_FILENO);
+	// 	close(cmd->fd[1]);
+	// }
+	
+	// void	middle_pipe(t_cmd *cmd)
+	// {
+		// 	dup2()
+		// }
+		
+		// void	last_pipe(t_cmd *cmd, char *outfile)
+		// {
+			
+		// }
+		
 void	pipe_loop(char **envp, t_cmd *cmd, t_pipe_args *pa)
 {
-	if (pa->i == 0)
+	if (pa->i == 0) // if 
 		dup2(pa->infile_fd, STDIN_FILENO);
 	else
+	{
 		dup2(cmd->prev_fd, STDIN_FILENO);
-	close(cmd->fd[0]);
+		// close(cmd->prev_fd);
+	}
 	if (pa->i == pa->cmd_cnt - 1)
 		dup2(pa->outfile_fd, STDOUT_FILENO);
 	else
 		dup2(cmd->fd[1], STDOUT_FILENO);
+	if (pa->i < pa->cmd_cnt - 1)
+        close(cmd->fd[0]);
 	close(cmd->fd[1]);
-	for (int i = 0; cmd->argv[i]; i++)
-	{
-		fprintf(stderr, "cmd->path %s\n", cmd->path);
-		fprintf(stderr, "cmd->argv[%d] %s\n", i, cmd->argv[i]);
-	}
-	fprintf(stderr, "[child %d] got input: '%s'\n", getpid(), cmd->argv[0]);
-	char buf[1024];
-	ssize_t n = read(cmd->prev_fd, buf, sizeof(buf) - 1);
-	if (n > 0) 
-	{
-		buf[n] = '\0';
-		fprintf(stderr, "[child %d] prev_fd input: \n%s\n", getpid(), buf);
-		// put the data back into stdin for the real exec
-		int pipe_copy[2];
-		pipe(pipe_copy);
-		write(pipe_copy[1], buf, n);
-		close(pipe_copy[1]);
-		dup2(pipe_copy[0], STDIN_FILENO);
-		close(pipe_copy[0]);
-	}
+	// fprintf(stderr, "cmd->path %s\n", cmd->path);
+	// for (int i = 0; cmd->argv[i]; i++)
+	// {
+	// 	fprintf(stderr, "cmd->argv[%d] %s\n", i, cmd->argv[i]);
+	// }
+	// fprintf(stderr, "[child %d] cmd: '%s' got input\n", getpid(), cmd->argv[0]);
+	// char buf[1024];
+	// ssize_t n = read(cmd->prev_fd, buf, sizeof(buf) - 1);
+	// if (n > 0) 
+	// {
+	// 	buf[n] = '\0';
+	// 	fprintf(stderr, "[child %d] prev_fd %d input: \n%s\n", getpid(), cmd->prev_fd, buf);
+	// 	// put the data back into stdin for the real exec
+	// 	int pipe_copy[2];
+	// 	pipe(pipe_copy);
+	// 	write(pipe_copy[1], buf, n);
+	// 	close(pipe_copy[1]);
+	// 	dup2(pipe_copy[0], STDIN_FILENO);
+	// 	close(pipe_copy[0]);
+	// }
+	fprintf(stderr, "[child %d] stdin=%d, stdout=%d\n",
+						getpid(),
+    							dup(STDIN_FILENO),
+    									dup(STDOUT_FILENO));
 	execve(cmd->path, cmd->argv, envp);
 	perror("execve");
 	exit(127);
@@ -141,14 +169,16 @@ void	pipex(t_pipe_args *pa, char **envp)
 			build_cmd(pa->c[pa->i], envp, pa->c[pa->i]->fd);
 			pipe_loop(envp, pa->c[pa->i], pa);	
 		}
-		if (pa->c[pa->i]->pid > 0)
-		{	
-			if (pa->i < pa->cmd_cnt - 1)
-				pa->c[pa->i + 1]->prev_fd = pa->c[pa->i]->fd[0];
-			if (pa->i != 0)
-				close(pa->c[pa->i]->fd[0]);
+		// if (pa->c[pa->i]->pid > 0)
+		// {	
+		if (pa->i < pa->cmd_cnt - 1)
+		{
+			pa->c[pa->i + 1]->prev_fd = pa->c[pa->i]->fd[0];
 			close(pa->c[pa->i]->fd[1]);
 		}
+		// }
+		// if (pa->i > 0)
+		// 	close(pa->c[pa->i - 1]->prev_fd);
 		pa->i++;
 	}	
 	int i = 0;

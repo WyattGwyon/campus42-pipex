@@ -33,11 +33,6 @@ typedef struct s_path
 	int		j;
 }	t_path;
 
-typedef struct s_process
-{
-
-}	t_process;
-
 typedef	struct s_cmd
 {
 	char	*raw_cmd;
