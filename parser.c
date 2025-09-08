@@ -45,17 +45,21 @@ char	*path_parser(char *cmd, char **envp)
 				p.j = 0;
 				while (p.raw_path[p.j] != NULL)
 				{
-					if (!(p.path = make_path(p.raw_path[p.j], cmd)))
-						return(ft_strarr_free(&p.raw_path), NULL);
-					if (!access(p.path, X_OK) && !access(cmd, F_OK))
+					p.path = make_path(p.raw_path[p.j], cmd);
+					if (access(p.path, X_OK) == 0) // returns 0 if access can ex 
 						return (ft_strarr_free(&p.raw_path), p.path);
+					if (access(p.path, X_OK) != 0) // returns -1 if access fails
+					{
+						if (access(cmd, X_OK) == 0) // returns 0 if access can ex
+							return (ft_strarr_free(&p.raw_path), cmd);
+					}
 					free(p.path);
 					p.j++;
 				}
 			}
 			p.i++;
 		}
-	return (NULL);
+	return (ft_strarr_free(&p.raw_path), NULL);
 }
 
 // isolate values -infile name -outfile name -raw cmds -cmd_cnts

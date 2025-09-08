@@ -99,6 +99,11 @@ void	pipe_loop(char **envp, t_cmd *cmd, t_pipe_args *pa)
 	else
 		dup2(cmd->fd[1], STDOUT_FILENO);
 	close(cmd->fd[1]);
+	for (int i = 0; cmd->argv[i]; i++)
+	{
+		fprintf(stderr, "cmd->path %s\n", cmd->path);
+		fprintf(stderr, "cmd->argv[%d] %s\n", i, cmd->argv[i]);
+	}
 	execve(cmd->path, cmd->argv, envp);
 	perror("execve");
 	exit(127);
