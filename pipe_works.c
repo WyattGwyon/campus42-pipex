@@ -99,6 +99,21 @@ void	pipe_loop(char **envp, t_cmd *cmd, t_pipe_args *pa)
 	else
 		dup2(cmd->fd[1], STDOUT_FILENO);
 	close(cmd->fd[1]);
+	fprintf(stderr, "[child %d] got input: '%s'\n", getpid(), cmd->argv[0]);
+	char buf[1024];
+	ssize_t n = read(cmd->prev_fd, buf, sizeof(buf) - 1);
+	if (n > 0) 
+	{
+		buf[n] = '\0';
+		fprintf(stderr, "[child %d] prev_fd input: \n%s\n", getpid(), buf);
+		// put the data back into stdin for the real exec
+		int pipe_copy[2];
+		pipe(pipe_copy);
+		write(pipe_copy[1], buf, n);
+		close(pipe_copy[1]);
+		dup2(pipe_copy[0], STDIN_FILENO);
+		close(pipe_copy[0]);
+	}
 	execve(cmd->path, cmd->argv, envp);
 	perror("execve");
 	exit(127);
