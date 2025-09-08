@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_atol.c                                          :+:      :+:    :+:   */
+/*   ft_atof.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: clouden <clouden@student.42madrid.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -12,13 +12,27 @@
 
 #include "libft.h"
 
-__int128_t	ft_atol(const char *str)
+static void	fraction(const char *str, struct s_float *f)
 {
-	int			sign;
-	__int128_t	num;
+	str++;
+	while (ft_isdigit(*str))
+	{
+		f->rnum = f->rnum * 10 + (*str - '0');
+		f->zero = f->zero * 10;
+		str++;
+	}
+	f->deci = (double)f->rnum / f->zero;
+}
 
-	sign = 1;
-	num = 0;
+double	ft_atof(const char *str)
+{
+	struct s_float	f;
+
+	f.sign = 1;
+	f.lnum = 0;
+	f.rnum = 0;
+	f.deci = 0;
+	f.zero = 1;
 	if (*str == '\0')
 		return (0);
 	while (*str == ' ' || (*str >= '\t' && *str <= '\r'))
@@ -26,13 +40,15 @@ __int128_t	ft_atol(const char *str)
 	if (*str == '-' || *str == '+')
 	{
 		if (*str == '-')
-			sign = -1;
+			f.sign = -1;
 		str++;
 	}
 	while (ft_isdigit(*str))
 	{
-		num = num * 10 + (*str - '0');
+		f.lnum = f.lnum * 10 + (*str - '0');
 		str++;
 	}
-	return (num * sign);
+	if (*str == '.' || *str == ',')
+		fraction(str, &f);
+	return ((f.deci + f.lnum) * f.sign);
 }
