@@ -52,6 +52,7 @@ typedef struct s_pipe_args
 	int		outfile_fd;
 	int		cmd_cnt;
 	int		i;
+	int		pipefd[2];
 	t_cmd 	**c;
 }	t_pipe_args;
 
@@ -68,5 +69,7 @@ int		ft_printf(const char *fmt, ...);
 void	ft_putstr_fd(char *s, int fd);
 char	*ft_strjoin(char const *s1, char const *s2);
 void	pipex(t_pipe_args *pa, char **envp);
+void	print_error(char *str, char type);
+void	free_pipe_args(t_pipe_args *pa);
 
 # endif

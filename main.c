@@ -12,10 +12,18 @@
 
 #include "pipex.h"
 
+void init_pa(t_pipe_args *pa)
+{
+	pa->infile = NULL;
+	pa->outfile = NULL;
+	pa->cmd_cnt = 0;
+}
+
 int	main(int argc, char *argv[], char **envp)
 {
 	t_pipe_args	pa;
 
+	init_pa(&pa);
 	arg_parser(argc, argv, &pa);
 	pa.i = 0;
 	while (pa.i < pa.cmd_cnt)

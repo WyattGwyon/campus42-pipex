@@ -23,8 +23,9 @@ NAME	=	pipex
 BONUS_NAME = pipex_bonus
 
 SRCS	=	parser.c \
-			pipe_works.c
-BONUS_SRCS	=	parser_bonus.c\
+			pipe_works.c \
+			error_clean.c
+BONUS_SRCS	=	parser_bonus.c \
 				pipe_works_bonus.c
 
 OBJS	=	$(SRCS:%.c=%.o)

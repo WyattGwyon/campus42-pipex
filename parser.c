@@ -66,7 +66,8 @@ char	*path_parser(char *cmd, char **envp)
 int	arg_parser(int argc, char *argv[], t_pipe_args *pa)
 {
 	pa->i = 0;
-	if (argc < 5)
+	
+	if (argc != 5)
 	{
 		ft_printf("pipex: usage: %s infile cmd1 cmd2 outfile\n", argv[0]);		
 		exit(EXIT_FAILURE);
@@ -74,9 +75,17 @@ int	arg_parser(int argc, char *argv[], t_pipe_args *pa)
 	pa->infile = argv[1];
 	pa->outfile = argv[argc-1];
 	pa->cmd_cnt = argc - 3;
+	pa->c = ft_calloc(pa->cmd_cnt, sizeof(t_cmd *));
+	if (!pa->c)
+	{
+		ft_printf("pipex: failed to allocate memory\n");
+		exit(EXIT_FAILURE);
+	}
 	while (pa->i < pa->cmd_cnt)
 	{
+		pa->c[pa->i] = NULL;
 		pa->c[pa->i] = ft_calloc(1, sizeof(t_cmd));
+		pa->c[pa->i]->raw_cmd = NULL;
 		pa->c[pa->i]->raw_cmd = argv[2 + pa->i];
 		pa->i++;
 	}
