@@ -29,7 +29,7 @@ zsh: permission denied: out.txt
 (wait 2 seconds)
 
 <lkj.txt cat | echo "cat" | ls >out.txt
-zsh: no such file or directory: lkj.txt
+zsh:: lkj.txt
 zsh: permission denied: out.txt
 
 IF COMMAND IF NOT VLAID BUT OUTFILE IS 

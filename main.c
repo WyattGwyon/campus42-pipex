@@ -31,6 +31,5 @@ int	main(int argc, char *argv[], char **envp)
 		pipex(&pa, envp);
 		pa.i++;
 	}
-	//clean_pipe(%p);
 	return (0);
 }

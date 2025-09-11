@@ -46,11 +46,14 @@ char	*path_parser(char *cmd, char **envp)
 				while (p.raw_path[p.j] != NULL)
 				{
 					p.path = make_path(p.raw_path[p.j], cmd);
-					if (access(p.path, X_OK) == 0) // returns 0 if access can ex 
-						return (ft_strarr_free(&p.raw_path), p.path);
-					if (access(p.path, X_OK) != 0) // returns -1 if access fails
+					if (access(p.path, X_OK) == 0)
 					{
-						if (access(cmd, X_OK) == 0) // returns 0 if access can ex
+						fprintf(stderr, "path does not exist %d", access(p.path, X_OK));
+						return (ft_strarr_free(&p.raw_path), p.path);
+					} 
+					if (access(p.path, X_OK) != 0)
+					{
+						if (access(cmd, X_OK) == 0)
 							return (ft_strarr_free(&p.raw_path), cmd);
 					}
 					free(p.path);
@@ -59,10 +62,10 @@ char	*path_parser(char *cmd, char **envp)
 			}
 			p.i++;
 		}
-	return (ft_strarr_free(&p.raw_path), NULL);
+	return (fprintf(stderr, "path not found"));
+	// return (ft_strarr_free(&p.raw_path), NULL);
 }
 
-// isolate values -infile name -outfile name -raw cmds -cmd_cnts
 int	arg_parser(int argc, char *argv[], t_pipe_args *pa)
 {
 	pa->i = 0;
@@ -91,22 +94,3 @@ int	arg_parser(int argc, char *argv[], t_pipe_args *pa)
 	}
 	return (0);
 }
-
-	// if (!access(argv[1], F_OK))
-	// 	ft_printf("pipex: no such file or directory: %s\n", argv[1]);
-	// else if (!access(argv[1], R_OK))
-	// 	ft_printf("pipex: permission denied: %s\n", argv[1]);
-	// if (!access(argv[argc-1], W_OK))
-	// ft_printf("pipex: permission denied: %s\n", argv[argc-1]);
-
-// char **cmd_parser(char *raw_cmd)
-// {
-// 	if raw_cmd has  single quotes
-// 		count number of ' '
-		
-// 		if number is not even send error message cannot parse
-// 		return
-
-// 		split the raw_cmd 
-
-// }

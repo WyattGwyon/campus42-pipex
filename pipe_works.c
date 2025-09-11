@@ -90,10 +90,21 @@ void	pipex(t_pipe_args *pa, char **envp)
 	pa->i = 0;
 	pa->infile_fd = open(pa->infile, O_RDONLY);
 	if (pa->infile_fd == -1)
-		perror(pa->infile);
+	{
+		// fprintf(stderr, "%s\n", strerror(errno));
+		perror("pipex");
+	}
 	pa->outfile_fd = open(pa->outfile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (pa->outfile_fd == -1)
-		perror(pa->outfile);
+	{
+		// fprintf(stderr, "%s\n", strerror(errno));
+		perror("pipex");
+	}
+	if (pa->infile_fd == -1 || pa->outfile_fd == -1)
+	{
+		free_pipe_args(pa);
+		exit(EXIT_FAILURE);
+	}
 	pipe(pa->pipefd);
 	pa->c[pa->i]->pid = fork();
 	first_child(envp, pa);
