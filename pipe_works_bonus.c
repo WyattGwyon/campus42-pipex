@@ -170,7 +170,7 @@ void	pipe_loop(char **envp, t_cmd *cmd, t_pipe_args *pa)
 	exit(127);
 }
 
-void	pipex(t_pipe_args *pa, char **envp)
+int	pipex(t_pipe_args *pa, char **envp)
 {
 	pa->i = 0;
 	pa->infile_fd = open(pa->infile, O_RDONLY);
@@ -216,5 +216,5 @@ void	pipex(t_pipe_args *pa, char **envp)
 	}
 	
 	// close_pipe(pa, fd);
-	return ;
+	return (0);
 }

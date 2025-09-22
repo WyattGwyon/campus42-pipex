@@ -22,15 +22,17 @@ void init_pa(t_pipe_args *pa)
 int	main(int argc, char *argv[], char **envp)
 {
 	t_pipe_args	pa;
+	int exit_code;
 
+	exit_code = 0;
 	init_pa(&pa);
 	arg_parser(argc, argv, &pa);
 	pa.i = 0;
 	while (pa.i < pa.cmd_cnt)
 	{
-		pipex(&pa, envp);
+		exit_code = pipex(&pa, envp);
 		pa.i++;
 	}
 	//clean_pipe(%p);
-	return (0);
+	return (exit_code);
 }

@@ -68,7 +68,7 @@ void	ft_strarr_free(char ***strarr);
 int		ft_printf(const char *fmt, ...);
 void	ft_putstr_fd(char *s, int fd);
 char	*ft_strjoin(char const *s1, char const *s2);
-void	pipex(t_pipe_args *pa, char **envp);
+int		pipex(t_pipe_args *pa, char **envp);
 void	print_error(char *str, char type);
 void	free_pipe_args(t_pipe_args *pa);
 

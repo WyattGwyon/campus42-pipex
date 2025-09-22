@@ -56,11 +56,18 @@ void	first_child(char **envp, t_pipe_args *pa)
 {
 	if (pa->c[pa->i]->pid == 0)
 	{
+		pa->infile_fd = open(pa->infile, O_RDONLY);
+		if (pa->infile_fd == -1)
+		{
+			perror(pa->infile);
+			close(pa->pipefd[0]);
+			close(pa->pipefd[1]);
+			exit(EXIT_FAILURE);
+		}
 		build_cmd(pa->c[pa->i], envp);
 		dup2(pa->infile_fd, STDIN_FILENO);
 		dup2(pa->pipefd[1], STDOUT_FILENO);
 		close(pa->infile_fd);
-		close(pa->outfile_fd);
 		close(pa->pipefd[0]);
 		close(pa->pipefd[1]);
 		execve(pa->c[pa->i]->path, pa->c[pa->i]->argv, envp);
@@ -73,6 +80,14 @@ void last_child(char **envp, t_pipe_args *pa)
 {
 	if (pa->c[pa->i]->pid == 0)
 	{
+		pa->outfile_fd = open(pa->outfile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+		if (pa->outfile_fd == -1)
+		{
+			perror(pa->outfile);
+			close(pa->pipefd[0]);
+			close(pa->pipefd[1]);
+			exit(EXIT_FAILURE);
+		}
 		build_cmd(pa->c[pa->i], envp);
 		dup2(pa->c[pa->i]->prev_fd, STDIN_FILENO);
 		dup2(pa->outfile_fd, STDOUT_FILENO);
@@ -85,15 +100,12 @@ void last_child(char **envp, t_pipe_args *pa)
 	}
 }
 
-void	pipex(t_pipe_args *pa, char **envp)
+int	pipex(t_pipe_args *pa, char **envp)
 {
+	int	status;
+	int exit_code;
+
 	pa->i = 0;
-	pa->infile_fd = open(pa->infile, O_RDONLY);
-	if (pa->infile_fd == -1)
-		perror(pa->infile);
-	pa->outfile_fd = open(pa->outfile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	if (pa->outfile_fd == -1)
-		perror(pa->outfile);
 	pipe(pa->pipefd);
 	pa->c[pa->i]->pid = fork();
 	first_child(envp, pa);
@@ -103,8 +115,10 @@ void	pipex(t_pipe_args *pa, char **envp)
 	last_child(envp, pa);
 	close(pa->pipefd[0]);
 	close(pa->pipefd[1]);
+	close(pa->c[pa->i]->prev_fd);
 	waitpid(pa->c[0]->pid, NULL, 0);
-	waitpid(pa->c[1]->pid, NULL, 0);
+	waitpid(pa->c[1]->pid, &status, 0);
+	exit_code = WEXITSTATUS(status);
 	free_pipe_args(pa);
-	return ;
+	return (exit_code);
 }
