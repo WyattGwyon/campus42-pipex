@@ -12,26 +12,33 @@
 
 #include "pipex.h"
 	
-void	build_cmd(t_cmd *c, char **envp)
+int	assign_cmd(t_cmd *c)
 {
 	c->argv = ft_split(c->raw_cmd, ' ');
 	if (!c->argv)
 	{
 		print_error(NULL, 's');
-		return ;
+		return (127);
 	}
 	if (c->argv[0] == 0)
 	{
 		print_error("", 'p');
-		return ;
+		return (127);
 	}
 	c->cmd = c->argv[0];
+	
+	return (0);
+}
+
+int find_cmd(t_cmd *c, char **envp)
+{
 	c->path = path_parser(c->cmd, envp);
 	if (!c->path)
 	{
-		print_error(c->cmd, 'c'); 
-		return ;	
+		print_error(c->cmd, 'c');
+		return (127);	
 	}
+	return (0);
 }
 
 void	pipe_n_fork_it(t_pipe_args *pa)
@@ -58,13 +65,12 @@ void	first_child(char **envp, t_pipe_args *pa)
 	{
 		pa->infile_fd = open(pa->infile, O_RDONLY);
 		if (pa->infile_fd == -1)
-		{
-			perror(pa->infile);
-			close(pa->pipefd[0]);
-			close(pa->pipefd[1]);
-			exit(EXIT_FAILURE);
-		}
-		build_cmd(pa->c[pa->i], envp);
+			file_fail(pa);
+		assign_cmd(pa->c[pa->i]);
+		if (access(pa->c[pa->i]->cmd, X_OK) == 0)
+			pa->c[pa->i]->path = pa->c[pa->i]->cmd;
+		else if (find_cmd(pa->c[pa->i], envp) != 0)
+			cmd_fail(pa);
 		dup2(pa->infile_fd, STDIN_FILENO);
 		dup2(pa->pipefd[1], STDOUT_FILENO);
 		close(pa->infile_fd);
@@ -82,13 +88,12 @@ void last_child(char **envp, t_pipe_args *pa)
 	{
 		pa->outfile_fd = open(pa->outfile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 		if (pa->outfile_fd == -1)
-		{
-			perror(pa->outfile);
-			close(pa->pipefd[0]);
-			close(pa->pipefd[1]);
-			exit(EXIT_FAILURE);
-		}
-		build_cmd(pa->c[pa->i], envp);
+			file_fail(pa);
+		assign_cmd(pa->c[pa->i]);
+		if (access(pa->c[pa->i]->cmd, X_OK) == 0)
+			pa->c[pa->i]->path = pa->c[pa->i]->cmd;
+		else if (find_cmd(pa->c[pa->i], envp) != 0)
+			cmd_fail(pa);
 		dup2(pa->c[pa->i]->prev_fd, STDIN_FILENO);
 		dup2(pa->outfile_fd, STDOUT_FILENO);
 		close(pa->outfile_fd);
@@ -106,19 +111,29 @@ int	pipex(t_pipe_args *pa, char **envp)
 	int exit_code;
 
 	pa->i = 0;
-	pipe(pa->pipefd);
-	pa->c[pa->i]->pid = fork();
+	pipe_n_fork_it(pa);
 	first_child(envp, pa);
 	pa->i = 1;
 	pa->c[pa->i]->prev_fd = pa->pipefd[0];
-	pa->c[pa->i]->pid = fork();
+	pipe_n_fork_it(pa);
 	last_child(envp, pa);
-	close(pa->pipefd[0]);
-	close(pa->pipefd[1]);
-	close(pa->c[pa->i]->prev_fd);
-	waitpid(pa->c[0]->pid, NULL, 0);
-	waitpid(pa->c[1]->pid, &status, 0);
-	exit_code = WEXITSTATUS(status);
-	free_pipe_args(pa);
-	return (exit_code);
+	if (pa->pipefd[0] >= 0)
+		close(pa->pipefd[0]);
+	if (pa->pipefd[1] <= 0)
+		close(pa->pipefd[1]);
+	if (pa->c[pa->i]->prev_fd)
+		close(pa->c[pa->i]->prev_fd);
+	if (pa->c && pa->c[0] && pa->c[0]->pid > 0)
+    	waitpid(pa->c[0]->pid, NULL, 0);
+	if (pa->c && pa->c[1] && pa->c[1]->pid > 0) 
+	{
+    	waitpid(pa->c[1]->pid, &status, 0);
+    	if (WIFEXITED(status))
+        	exit_code = WEXITSTATUS(status);
+    	else
+        	exit_code = 1;
+	} 
+	else 
+		exit_code = 1;
+	return exit_code;
 }

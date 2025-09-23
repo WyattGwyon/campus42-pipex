@@ -12,6 +12,17 @@
 
 #include "pipex.h"
 
+void	init_path(t_path *p)
+{
+	p->path_start = "PATH=";
+	p->raw_path = NULL;
+	p->path_array = NULL;
+	p->path = NULL;
+	p->is_cmd = 0;
+	p->i = 0;
+	p->j = 0;
+}
+
 char	*make_path(const char *dir, const char *cmd)
 {
 	char	*tmp;
@@ -32,33 +43,27 @@ char	*make_path(const char *dir, const char *cmd)
 char	*path_parser(char *cmd, char **envp)
 {
 	t_path	p;
-
-	p.path_start = "PATH=";
-	p.i = 0;
+	
+	init_path(&p);
 	while (envp[p.i] != NULL) 
+	{
+		if (!ft_strncmp(p.path_start, envp[p.i], 5))
 		{
-			if (!ft_strncmp(p.path_start, envp[p.i], 5))
+			p.raw_path = ft_split(envp[p.i] + 5, ':');
+			if (!p.raw_path)
+			return (NULL);
+			p.j = 0;
+			while (p.raw_path[p.j] != NULL)
 			{
-				p.raw_path = ft_split(envp[p.i] + 5, ':');
-				if (!p.raw_path)
-					return (NULL);
-				p.j = 0;
-				while (p.raw_path[p.j] != NULL)
-				{
-					p.path = make_path(p.raw_path[p.j], cmd);
-					if (access(p.path, X_OK) == 0) // returns 0 if access can ex 
-						return (ft_strarr_free(&p.raw_path), p.path);
-					if (access(p.path, X_OK) != 0) // returns -1 if access fails
-					{
-						if (access(cmd, X_OK) == 0) // returns 0 if access can ex
-							return (ft_strarr_free(&p.raw_path), cmd);
-					}
-					free(p.path);
-					p.j++;
-				}
+				p.path = make_path(p.raw_path[p.j], cmd);
+				if (access(p.path, X_OK) == 0) 
+					return (ft_strarr_free(&p.raw_path), p.path);
+				free(p.path);
+				p.j++;
 			}
-			p.i++;
 		}
+		p.i++;
+	}
 	return (ft_strarr_free(&p.raw_path), NULL);
 }
 

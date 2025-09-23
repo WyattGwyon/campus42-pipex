@@ -67,9 +67,12 @@ char	*ft_strdup(const char *s1);
 void	ft_strarr_free(char ***strarr);
 int		ft_printf(const char *fmt, ...);
 void	ft_putstr_fd(char *s, int fd);
+void	ft_putendl_fd(char *s, int fd);
 char	*ft_strjoin(char const *s1, char const *s2);
 int		pipex(t_pipe_args *pa, char **envp);
 void	print_error(char *str, char type);
 void	free_pipe_args(t_pipe_args *pa);
+void	file_fail(t_pipe_args *pa);
+void	cmd_fail(t_pipe_args *pa);
 
 # endif

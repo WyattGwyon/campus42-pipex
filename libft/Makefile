@@ -97,7 +97,7 @@ $(NAME): $(OBJS)
 
 # Rule to compile .c to .o
 %.o: %.c
-	@printf "$(GREEN)[COMPILING]$(RESET) %-20s → %s\n" $< $@
+# 	@printf "$(GREEN)[COMPILING]$(RESET) %-20s → %s\n" $< $@
 	@$(CC) $(CFLAGS) -c $< -o $@
 
 # Rule to compile test

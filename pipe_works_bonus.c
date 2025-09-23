@@ -12,31 +12,6 @@
 
 #include "pipex.h"
 
-void	print_error(char *str, char type)
-{
-	char *message;
-
-	message = "NONE";
-	if (type == 'c')
-		message = ft_strjoin("pipex: command not found: ", str);	
-	else if (type == 'p')
-		message = ft_strjoin("pipex: permission denied: ", str);
-	else if (type == 'f')
-		message = ft_strjoin("pipex: no such file or directory: ", str);
-	else if (type == 'q')
-		message = ft_strjoin("pipex: unable to parse", str);
-	else if (type == 's')
-		message = "pipex Error: ft_split failed to allocate memory";
-	else if (type == 'j')
-		message = "pipex Error: ft_strjoin failed to allocate memory";
-	if (!message)
-		print_error(NULL, 'j');
-	ft_putstr_fd(message, 2);
-	ft_putstr_fd("\n", 2);
-	free(message);
-}
-
-
 // void	close_pipe(t_pipe_args *pa, int fd[2])
 // {
 	// 	if (fd[0] != -1)
