@@ -87,6 +87,7 @@ void	cmd_fail(t_pipe_args *pa)
 {
 	free_pipe_args(pa);
 	close(pa->infile_fd);
+	close(pa->outfile_fd);
 	close(pa->pipefd[0]);
 	close(pa->pipefd[1]);
 	exit(127);

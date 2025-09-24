@@ -91,16 +91,10 @@ int	pipex(t_pipe_args *pa, char **envp)
 	last_child(envp, pa);
 	close(pa->pipefd[0]);
 	close(pa->pipefd[1]);
-	if (pa->c && pa->c[0] && pa->c[0]->pid > 0)
-		waitpid(pa->c[0]->pid, NULL, 0);
-	if (pa->c && pa->c[1] && pa->c[1]->pid > 0)
-	{
-		waitpid(pa->c[1]->pid, &status, 0);
-		if (WIFEXITED(status))
-			exit_code = WEXITSTATUS(status);
-		else
-			exit_code = 1;
-	}
+	waitpid(pa->c[0]->pid, NULL, 0);
+	waitpid(pa->c[1]->pid, &status, 0);
+	if (WIFEXITED(status))
+		exit_code = WEXITSTATUS(status);
 	else
 		exit_code = 1;
 	return (exit_code);
