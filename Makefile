@@ -20,24 +20,16 @@ CC		=	cc
 CFLAGS	=	-Wall -Wextra -Werror -I./libft
 
 NAME	=	pipex
-BONUS_NAME = pipex_bonus
 
 SRCS	=	parser.c \
 			pipe_works.c \
-			error_clean.c
-BONUS_SRCS	=	parser.c \
-				pipe_works_bonus.c \
-				error_clean.c
-
+			error_clean.c \
+			init.c
 
 OBJS	=	$(SRCS:%.c=%.o)
-BONUS_OBJS	=	$(BONUS_SRCS:%.c=%.o)
 
 MAIN	= 	main.c
 MAIN_OBJ=	$(MAIN:.c=.o)
-
-BONUS_MAIN	=	main.c
-BONUS_MAIN_OBJ	= $(BONUS_MAIN:.c=.o)
 
 LIBFT_DIR 	=	libft/
 LIBFT		=	$(LIBFT_DIR)libft.a
@@ -46,10 +38,6 @@ all:$(NAME)
 
 $(NAME):$(OBJS) $(MAIN_OBJ) $(LIBFT)
 	@echo "$(BLUE)[PIPEX]$(RESET) $^ → $@"
-	@$(CC) $(CFLAGS) $^ -o $@
-
-$(BONUS_NAME):$(BONUS_OBJS) $(BONUS_MAIN_OBJ) $(LIBFT)
-	@echo "$(BLUE)[PIPEX_BONUS]$(RESET) $^ → $@"
 	@$(CC) $(CFLAGS) $^ -o $@
 
 $(LIBFT):
@@ -66,7 +54,7 @@ clean:
 	@echo "+---------------------------+"
 	@echo "|  🧹  CLEANING OBJECTS     |"
 	@echo "+---------------------------+"
-	@rm -rf *.o $(OBJS) $(BONUS_OBJS) $(MAIN_OBJ) $(BONUS_MAIN_OBJ)
+	@rm -rf *.o $(OBJS) $(MAIN_OBJ)
 	@$(MAKE) -C $(LIBFT_DIR) clean --no-print-directory
 
 fclean: clean
@@ -74,7 +62,7 @@ fclean: clean
 	@echo "+---------------------------+"
 	@echo "|  🔥 REMOVING EXECUTABLES  |"
 	@echo "+---------------------------+"
-	@rm -f $(NAME) $(BONUS_NAME)  
+	@rm -f $(NAME)  
 	@$(MAKE) -C $(LIBFT_DIR) fclean --no-print-directory
 	@echo "$(RESET)"
 	@echo "...now THAT'S effin' clean!\n"

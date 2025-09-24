@@ -12,30 +12,6 @@
 
 #include "pipex.h"
 
-void	init_pa(t_pipe_args *pa)
-{
-    pa->infile = NULL;
-    pa->outfile = NULL;
-    pa->infile_fd = -1;
-    pa->outfile_fd = -1;
-    pa->cmd_cnt = 0;
-    pa->i = 0;
-    pa->pipefd[0] = -1;
-    pa->pipefd[1] = -1;
-    pa->c = NULL;
-}
-
-void	init_cmd(t_cmd *c)
-{
-	c->argv = NULL;
-	c->path = NULL;
-	c->cmd = NULL;
-	c->fd[0] = -1;
-	c->fd[1] = -1;		
-	c->prev_fd = -1;
-	c->pid = -1;
-}
-
 int	main(int argc, char *argv[], char **envp)
 {
 	t_pipe_args	pa;

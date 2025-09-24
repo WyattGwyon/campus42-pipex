@@ -14,13 +14,13 @@
 
 void	print_error(char *str, char type)
 {
-	char *message;
+	char	*message;
 
 	message = "NONE";
 	if (type == 'p')
 		message = ft_strjoin("pipex: permission denied: ", str);
 	else if (type == 'c')
-		message = ft_strjoin("pipex: command not found: ", str);	
+		message = ft_strjoin("pipex: command not found: ", str);
 	else if (type == 'f')
 		message = ft_strjoin("pipex: no such file or directory: ", str);
 	else if (type == 'q')
@@ -30,7 +30,7 @@ void	print_error(char *str, char type)
 		message = "pipex Error: ft_split failed to allocate memory";
 		ft_putstr_fd(message, 2);
 		ft_putstr_fd("\n", 2);
-		return;
+		return ;
 	}
 	ft_putstr_fd(message, 2);
 	ft_putstr_fd("\n", 2);
@@ -40,12 +40,18 @@ void	print_error(char *str, char type)
 
 void	free_cmd(t_cmd *cmd)
 {
+	int	i;
+
+	i = 0;
 	if (!cmd)
-		return;
+		return ;
 	if (cmd->argv)
 	{
-		for (int i = 0; cmd->argv[i]; i++)
+		while (cmd->argv[i])
+		{
 			free(cmd->argv[i]);
+			i++;
+		}
 		free(cmd->argv);
 	}
 	if (cmd->path)
@@ -55,27 +61,33 @@ void	free_cmd(t_cmd *cmd)
 
 void	free_pipe_args(t_pipe_args *pa)
 {
+	int	i;
+
+	i = 0;
 	if (!pa || !pa->c)
-		return;
-	for (int i = 0; i < pa->cmd_cnt; i++)
+		return ;
+	while (i < pa->cmd_cnt)
+	{
 		free_cmd(pa->c[i]);
+		i++;
+	}
 	free(pa->c);
 }
 
 void	file_fail(t_pipe_args *pa)
 {
-		free_pipe_args(pa);
-		perror(pa->infile);
-		close(pa->pipefd[0]);
-		close(pa->pipefd[1]);
-		exit(EXIT_FAILURE);
-}	
+	free_pipe_args(pa);
+	perror(pa->infile);
+	close(pa->pipefd[0]);
+	close(pa->pipefd[1]);
+	exit(EXIT_FAILURE);
+}
 
 void	cmd_fail(t_pipe_args *pa)
 {
-		free_pipe_args(pa);
-		close(pa->infile_fd);
-		close(pa->pipefd[0]);
-		close(pa->pipefd[1]);
-		exit(127);
+	free_pipe_args(pa);
+	close(pa->infile_fd);
+	close(pa->pipefd[0]);
+	close(pa->pipefd[1]);
+	exit(127);
 }

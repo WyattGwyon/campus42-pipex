@@ -17,7 +17,7 @@
 // this is helper function only for ft_strjoin_n
 static char	*ft_strjoin_free(char *s1, const char *s2)
 {
-	char *joined;
+	char	*joined;
 
 	joined = ft_strjoin(s1, s2);
 	free(s1);

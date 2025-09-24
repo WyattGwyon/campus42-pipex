@@ -13,14 +13,14 @@
 #ifndef PIPEX_H
 # define PIPEX_H
 
-#include <stdio.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/wait.h>
-#include <sys/types.h>
-#include <errno.h>
+# include <stdio.h>
+# include <fcntl.h>
+# include <unistd.h>
+# include <stdlib.h>
+# include <string.h>
+# include <sys/wait.h>
+# include <sys/types.h>
+# include <errno.h>
 
 typedef struct s_path
 {
@@ -33,7 +33,7 @@ typedef struct s_path
 	int		j;
 }	t_path;
 
-typedef	struct s_cmd
+typedef struct s_cmd
 {
 	char	*raw_cmd;
 	char	**argv;
@@ -53,7 +53,8 @@ typedef struct s_pipe_args
 	int		cmd_cnt;
 	int		i;
 	int		pipefd[2];
-	t_cmd 	**c;
+	pid_t	pid;
+	t_cmd	**c;
 }	t_pipe_args;
 
 int		arg_parser(int argc, char *argv[], t_pipe_args *p);
@@ -74,5 +75,10 @@ void	print_error(char *str, char type);
 void	free_pipe_args(t_pipe_args *pa);
 void	file_fail(t_pipe_args *pa);
 void	cmd_fail(t_pipe_args *pa);
+void	init_path(t_path *p);
+void	init_pa(t_pipe_args *pa);
+void	init_cmd(t_cmd *c);
+int		assign_cmd(t_cmd *c);
+int		find_cmd(t_cmd *c, char **envp);
 
-# endif
+#endif
