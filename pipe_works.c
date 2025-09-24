@@ -31,7 +31,7 @@ void	fork_it(t_pipe_args *pa)
 	}
 }
 
-void	first_child(char **envp, t_pipe_args *pa)
+int	first_child(char **envp, t_pipe_args *pa)
 {
 	if (pa->pid == 0)
 	{
@@ -54,7 +54,7 @@ void	first_child(char **envp, t_pipe_args *pa)
 	}
 }
 
-void	last_child(char **envp, t_pipe_args *pa)
+int	last_child(char **envp, t_pipe_args *pa)
 {
 	if (pa->pid == 0)
 	{

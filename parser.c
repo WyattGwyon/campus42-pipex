@@ -18,12 +18,12 @@ int	assign_cmd(t_cmd *c)
 	if (!c->argv)
 	{
 		print_error(NULL, 's');
-		return (127);
+		return (EXIT_FAILURE);
 	}
 	if (c->argv[0] == 0)
 	{
 		print_error("", 'p');
-		return (127);
+		return (EXIT_FAILURE);
 	}
 	c->cmd = c->argv[0];
 	return (0);
