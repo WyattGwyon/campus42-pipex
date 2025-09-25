@@ -28,12 +28,10 @@ void	print_error(char *str, char type)
 	else if (type == 's')
 	{
 		message = "pipex Error: ft_split failed to allocate memory";
-		ft_putstr_fd(message, 2);
-		ft_putstr_fd("\n", 2);
+		ft_putendl_fd(message, 2);
 		return ;
 	}
-	ft_putstr_fd(message, 2);
-	ft_putstr_fd("\n", 2);
+	ft_putendl_fd(message, 2);
 	free(message);
 	message = NULL;
 }
@@ -74,10 +72,10 @@ void	free_pipe_args(t_pipe_args *pa)
 	free(pa->c);
 }
 
-void	file_fail(t_pipe_args *pa)
+void	file_fail(t_pipe_args *pa, char *filename)
 {
 	free_pipe_args(pa);
-	perror(pa->infile);
+	fprintf(stderr, "pipex: %s: %s\n", filename, strerror(errno));
 	close(pa->pipefd[0]);
 	close(pa->pipefd[1]);
 	exit(EXIT_FAILURE);

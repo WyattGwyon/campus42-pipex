@@ -37,8 +37,8 @@ void	first_child(char **envp, t_pipe_args *pa)
 	{
 		pa->infile_fd = open(pa->infile, O_RDONLY);
 		if (pa->infile_fd == -1)
-			file_fail(pa);
-		assign_cmd(pa->c[pa->i]);
+			file_fail(pa, pa->infile);
+		assign_cmd(pa->c[pa->i], pa->infile);
 		if (access(pa->c[pa->i]->cmd, X_OK) == 0)
 			pa->c[pa->i]->path = pa->c[pa->i]->cmd;
 		else if (find_cmd(pa->c[pa->i], envp) != 0)
@@ -60,8 +60,8 @@ void	last_child(char **envp, t_pipe_args *pa)
 	{
 		pa->outfile_fd = open(pa->outfile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 		if (pa->outfile_fd == -1)
-			file_fail(pa);
-		assign_cmd(pa->c[pa->i]);
+			file_fail(pa, pa->outfile);
+		assign_cmd(pa->c[pa->i], pa->outfile);
 		if (access(pa->c[pa->i]->cmd, X_OK) == 0)
 			pa->c[pa->i]->path = pa->c[pa->i]->cmd;
 		else if (find_cmd(pa->c[pa->i], envp) != 0)

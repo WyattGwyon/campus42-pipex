@@ -73,12 +73,12 @@ char	*ft_strjoin(char const *s1, char const *s2);
 int		pipex(t_pipe_args *pa, char **envp);
 void	print_error(char *str, char type);
 void	free_pipe_args(t_pipe_args *pa);
-void	file_fail(t_pipe_args *pa);
+void	file_fail(t_pipe_args *pa, char *filename);
 void	cmd_fail(t_pipe_args *pa);
 void	init_path(t_path *p);
 void	init_pa(t_pipe_args *pa);
 void	init_cmd(t_cmd *c);
-int		assign_cmd(t_cmd *c);
+int		assign_cmd(t_cmd *c, char *filename);
 int		find_cmd(t_cmd *c, char **envp);
 
 #endif

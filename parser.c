@@ -12,7 +12,7 @@
 
 #include "pipex.h"
 
-int	assign_cmd(t_cmd *c)
+int	assign_cmd(t_cmd *c, char *filename)
 {
 	c->argv = ft_split(c->raw_cmd, ' ');
 	if (!c->argv)
@@ -22,7 +22,7 @@ int	assign_cmd(t_cmd *c)
 	}
 	if (c->argv[0] == 0)
 	{
-		print_error("", 'p');
+		print_error(filename, 'p');
 		return (EXIT_FAILURE);
 	}
 	c->cmd = c->argv[0];
