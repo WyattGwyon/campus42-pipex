@@ -6,7 +6,7 @@
 /*   By: clouden <clouden@student.42madrid.com      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/09 22:40:29 by clouden           #+#    #+#             */
-/*   Updated: 2025/09/09 22:42:16 by clouden          ###   ########.fr       */
+/*   Updated: 2025/09/25 19:53:26 by clouden          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,7 +75,7 @@ void	free_pipe_args(t_pipe_args *pa)
 void	file_fail(t_pipe_args *pa, char *filename)
 {
 	free_pipe_args(pa);
-	fprintf(stderr, "pipex: %s: %s\n", filename, strerror(errno));
+	print_error(filename, 'f');
 	close(pa->pipefd[0]);
 	close(pa->pipefd[1]);
 	exit(EXIT_FAILURE);
