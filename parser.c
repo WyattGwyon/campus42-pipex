@@ -6,7 +6,7 @@
 /*   By: clouden <clouden@student.42madrid.com      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/18 16:26:33 by clouden           #+#    #+#             */
-/*   Updated: 2025/08/18 16:26:42 by clouden          ###   ########.fr       */
+/*   Updated: 2025/10/13 20:29:50 by clouden          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,7 +87,7 @@ char	*path_parser(char *cmd, char **envp)
 int	arg_parser(int argc, char *argv[], t_pipe_args *pa)
 {
 	pa->i = 0;
-	if (argc != 5)
+	if (argc < 5)
 	{
 		ft_printf("pipex: usage: %s infile cmd1 cmd2 outfile\n", argv[0]);
 		exit(EXIT_FAILURE);

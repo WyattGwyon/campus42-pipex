@@ -6,7 +6,7 @@
 /*   By: clouden <clouden@student.42madrid.com      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/18 16:28:20 by clouden           #+#    #+#             */
-/*   Updated: 2025/08/18 16:28:25 by clouden          ###   ########.fr       */
+/*   Updated: 2025/10/13 20:23:16 by clouden          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,7 @@ typedef struct s_pipe_args
 	char	*outfile;
 	int		outfile_fd;
 	int		cmd_cnt;
+	int		prev_fd;
 	int		i;
 	int		pipefd[2];
 	pid_t	pid;
